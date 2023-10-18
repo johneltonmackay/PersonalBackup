@@ -1,0 +1,23 @@
+<sublist scriptid="custsublist_adap_atlassian_cart">
+  <assemblybuild>F</assemblybuild>
+  <customtransactions></customtransactions>
+  <deposit>F</deposit>
+  <depositapplication>F</depositapplication>
+  <expensereport>F</expensereport>
+  <field></field>
+  <fulfillmentrequest>F</fulfillmentrequest>
+  <inventoryadjustment>F</inventoryadjustment>
+  <itemfulfillment>F</itemfulfillment>
+  <itemreceipt>F</itemreceipt>
+  <journal>F</journal>
+  <label>Atlassian Cart</label>
+  <opportunity>F</opportunity>
+  <payment>F</payment>
+  <purchase>F</purchase>
+  <sale>F</sale>
+  <savedsearch>[scriptid=customsearch_adap_atl_cart_related_recor]</savedsearch>
+  <storepickup>F</storepickup>
+  <sublisttype>TRANSACTION</sublisttype>
+  <tab>[scriptid=custtab_adap_atlassian_integration]</tab>
+  <vendorpayment>F</vendorpayment>
+</sublist>

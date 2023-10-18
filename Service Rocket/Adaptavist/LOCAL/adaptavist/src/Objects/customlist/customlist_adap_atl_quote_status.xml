@@ -1,0 +1,20 @@
+<customlist scriptid="customlist_adap_atl_quote_status">
+  <description></description>
+  <isinactive>F</isinactive>
+  <isordered>T</isordered>
+  <name>Atlassian Quote Status</name>
+  <customvalues>
+    <customvalue scriptid="val_38890_8190294_sb1_347">
+      <isinactive>F</isinactive>
+      <value>OPEN</value>
+    </customvalue>
+    <customvalue scriptid="val_38891_8190294_sb1_384">
+      <isinactive>F</isinactive>
+      <value>CLOSED</value>
+    </customvalue>
+    <customvalue scriptid="val_38892_8190294_sb1_645">
+      <isinactive>F</isinactive>
+      <value>QUOTED</value>
+    </customvalue>
+  </customvalues>
+</customlist>

@@ -1,0 +1,9 @@
+<advancedpdftemplate scriptid="custtmpl_adaptavist_quote_pdf" standard="STDTMPLQUOTE">
+  <description></description>
+  <displaysourcecode>T</displaysourcecode>
+  <isinactive>F</isinactive>
+  <preferred>T</preferred>
+  <printtype>TRANSACTION</printtype>
+  <title>Adaptavist Quote PDF/HTML Template</title>
+  <trantype>ESTIMATE</trantype>
+</advancedpdftemplate>

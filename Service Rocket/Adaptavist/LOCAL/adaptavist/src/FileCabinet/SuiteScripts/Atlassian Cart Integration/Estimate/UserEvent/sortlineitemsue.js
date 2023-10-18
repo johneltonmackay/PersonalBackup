@@ -2,12 +2,12 @@
  * @NApiVersion 2.1
  * @NScriptType UserEventScript
  */
-define(['N/record', 'N/ui/serverWidget', 'N/file'],
+define(['N/record', 'N/ui/serverWidget', 'N/file', 'N/search'],
     /**
      * @param{record} record
      * @param{serverWidget} serverWidget
      */
-    (record, serverWidget, file) => {
+    (record, serverWidget, file, search) => {
         const beforeLoad = (scriptContext) => {
             if (scriptContext.type == 'print') {
                 let objEstimateRec = scriptContext.newRecord;
@@ -17,6 +17,9 @@ define(['N/record', 'N/ui/serverWidget', 'N/file'],
                 let arrSublistItems = [];
                 let lineCount = objEstimateRec.getLineCount('item');
                 let sublistFieldNames = [
+                    "custcol_adap_atlassian_cart_holder",
+                    "custcol_adap_tech_name",
+                    "custcol_adap_tech_email",
                     "custcol_adap_atl_cloudid",
                     "item",
                     "description",
@@ -43,6 +46,7 @@ define(['N/record', 'N/ui/serverWidget', 'N/file'],
                 let taxtotal = 0
                 let taxrawtotal = 0
                 let arrSenNumbers = [];
+                let arrTechName = [];
                 let arrTaxTotal = [];
                 let counter = 0
                 for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
@@ -62,6 +66,21 @@ define(['N/record', 'N/ui/serverWidget', 'N/file'],
                         }
                         arrSenNumbers.push(objMasking);
                     }
+                    if (lineValues['custcol_adap_tech_name']) {
+                        let strTechName = lineValues['custcol_adap_tech_name'];
+                        let strTechEmail = lineValues['custcol_adap_tech_email'];
+                        let intATCardId = lineValues['custcol_adap_atlassian_cart_holder'];
+                        
+                        if (!arrTechName.some(tech => tech.name === strTechName)) {
+                            let objTechDetails = {
+                                aTCardId: intATCardId,
+                                name: strTechName,
+                                email: strTechEmail
+                            }
+                            arrTechName.push(objTechDetails);
+                        }
+                    }
+                    
                     if (lineValues['custcol_adap_atl_cart_item_inilstprc']) {
                         counter = counter + 1
                         if (lineValues['custcol_product_start_date']) {
@@ -102,16 +121,41 @@ define(['N/record', 'N/ui/serverWidget', 'N/file'],
                     })
                 })
                 arrSublistItems.sort(customSort);
-                log.debug("arrTaxTotal", arrTaxTotal);
-                log.debug("arrSublistItems", arrSublistItems);
-
                 let jsonString = JSON.stringify(arrSublistItems);
-                createFile(jsonString)
+                let totalCharacters = jsonString.length;  
 
-                let totalCharacters = jsonString.length;      
+                log.debug("arrTaxTotal", arrTaxTotal);
                 log.debug("Total characters in arrSublistItems:", totalCharacters);
                 log.debug("arrSublistItems.length", arrSublistItems.length);
                 log.debug("arrSenNumber", arrSenNumbers);
+                log.debug("arrTechName", arrTechName);
+
+                // Create an object to store the highest index for each atCardId
+                const highestIndexes = {};
+
+                arrTechName.forEach(function (techNameData) {
+                    let atCardId = techNameData.aTCardId;
+                    let highestIndex = -1; // Initialize with a value less than the lowest index
+
+                    arrSublistItems.forEach(function (data, index) {
+                        let dataCardId = data.custcol_adap_atlassian_cart_holder;
+                        if (atCardId == dataCardId) {
+                            // Update the highest index if a higher index is found
+                            highestIndex = Math.max(highestIndex, index);
+                        }
+                    });
+
+                    // Push techNameData into arrSublistItems after the highest index
+                    arrSublistItems.splice(highestIndex + 1, 0, techNameData);
+
+                    // Update the highest index for this atCardId
+                    highestIndexes[atCardId] = highestIndex + 1;
+                });
+
+                
+
+                log.debug("arrSublistItems", arrSublistItems);    
+
                 if (totalCharacters <= 100000){
                     let fldDataStorage = form.addField({
                         id: 'custpage_sorted_items',
@@ -132,6 +176,8 @@ define(['N/record', 'N/ui/serverWidget', 'N/file'],
                 
             }
         }
+
+    
         function formatDate(dateString) {
             if (dateString) {
                 const date = new Date(dateString);
@@ -173,17 +219,5 @@ define(['N/record', 'N/ui/serverWidget', 'N/file'],
 
             return 0; // If all sorting criteria are the same
         }
-
-        function createFile(jsonString){
-            var fileObj = file.create({
-                name: 'test.txt',
-                fileType: file.Type.PLAINTEXT,
-                contents: jsonString
-            });
-            
-            fileObj.folder = 481;
-            var fileId = fileObj.save();
-        }
-
         return { beforeLoad };
     });
