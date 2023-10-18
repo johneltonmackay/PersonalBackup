@@ -67,9 +67,15 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
  
             
             arrExpenseLines.push({
+<<<<<<< HEAD
                 explTaxRate1: !isEmpty(explTaxRate1) ? (parseFloat(explTaxRate1) / 100.0) : 0.00000,
                 explTaxRate2: !isEmpty(explTaxRate2) ? (parseFloat(explTaxRate2) / 100.0) : 0.00000,
                 explAmount: !isEmpty(explAmount) ? parseFloat(explAmount) : 0.00000,
+=======
+                explTaxRate1: !isEmpty(explTaxRate1) ? (parseFloat(explTaxRate1) / 100.0) : '0.00000',
+                explTaxRate2: !isEmpty(explTaxRate2) ? (parseFloat(explTaxRate2) / 100.0) : '0.00000',
+                explAmount: !isEmpty(explAmount) ? parseFloat(explAmount) : '0.00000',
+>>>>>>> e8f47472fb64f6fb3d8d820261b680edc808e0ea
                 explAccountId: !isEmpty(explAccountId) ? parseInt(explAccountId) : null,
                 explLocationId: !isEmpty(explLocationId) ? parseInt(explLocationId) : null,
                 explDepartmentId: !isEmpty(explDepartmentId) ? parseInt(explDepartmentId) : null,
@@ -80,6 +86,7 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
 
         // CALCULATE REBATES
         for (var x = 0; x < arrExpenseLines.length; x++) {
+<<<<<<< HEAD
             var taxAmount;
             var taxRebate;
             var nonRebateAmount;
@@ -93,6 +100,21 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
                 var taxAmount = amount * taxRate;
                 taxAmount = taxAmount
                 var rebatePercentage;
+=======
+            var taxAmount = 0.00000;
+            var taxRebate = 0.00000;
+            var nonRebateAmount = 0.00000;
+
+            explTaxRate1 = fixedDecimalPlaces(arrExpenseLines[x].explTaxRate1)
+            explAmount = fixedDecimalPlaces(arrExpenseLines[x].explAmount)
+            var amount = explAmount;
+            // for GST/HST
+            if (amount > 0 && arrExpenseLines[x].explTaxRate1 > 0) {
+                var taxRate = explTaxRate1;
+                var taxAmount = amount * taxRate;
+                taxAmount = fixedDecimalPlaces(taxAmount)
+                var rebatePercentage = 0.00000;
+>>>>>>> e8f47472fb64f6fb3d8d820261b680edc808e0ea
                 
                 if (taxRate == 0.05) {
                     // GST
@@ -138,16 +160,26 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
                     departmentId: arrExpenseLines[x].explDepartmentId,
                     entityId: arrExpenseLines[x].explEntitytId
                 });
+<<<<<<< HEAD
                 nlapiLogExecution('AUDIT','for GST/HST', JSON.stringify(arrCustomLines));
             }
             // for PST
             if (amount >= 0 && arrExpenseLines[x].explTaxRate2 >= 0) {
+=======
+            }
+            // for PST
+            if (amount > 0 && arrExpenseLines[x].explTaxRate2 > 0) {
+>>>>>>> e8f47472fb64f6fb3d8d820261b680edc808e0ea
                 // get the tax rate from the expense line
                 explTaxRate2 = fixedDecimalPlaces(arrExpenseLines[x].explTaxRate2)
                 var taxRate = explTaxRate2;
                 taxAmount = amount * taxRate
                 taxAmount = fixedDecimalPlaces(taxAmount)
                 var accountId = getAccountId(arrStandardLines, taxAmount);
+<<<<<<< HEAD
+=======
+                nlapiLogExecution('AUDIT', 'accountId', 'accountId ' + accountId + ' taxAmount ' + taxAmount + ' taxRate ' + taxRate);
+>>>>>>> e8f47472fb64f6fb3d8d820261b680edc808e0ea
                 // Credit
                 arrCustomLines.push({
                     accountId: accountId,
@@ -166,11 +198,18 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
                     departmentId: arrExpenseLines[x].explDepartmentId,
                     entityId: arrExpenseLines[x].explEntitytId
                 });
+<<<<<<< HEAD
                 nlapiLogExecution('AUDIT','for PST', JSON.stringify(arrCustomLines));
             }
         }
         
         nlapiLogExecution('AUDIT', 'arrCustomLines', JSON.stringify(arrCustomLines));
+=======
+            }
+        }
+        nlapiLogExecution('AUDIT', 'arrCustomLines', JSON.stringify(arrCustomLines));
+        nlapiLogExecution('AUDIT', 'arrCustomLines.length', arrCustomLines.length);
+>>>>>>> e8f47472fb64f6fb3d8d820261b680edc808e0ea
         // ADD CUSTOM GL LINES
         for (var x = 0; x < arrCustomLines.length; x++) {
 
