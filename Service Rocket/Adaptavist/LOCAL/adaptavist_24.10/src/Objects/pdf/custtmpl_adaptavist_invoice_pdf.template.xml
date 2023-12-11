@@ -1,0 +1,460 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+    <macrolist>
+        <macro id="nlheader">
+            
+        </macro>
+        <macro id="nlfooter">
+            <table class="footer" style="width: 100%;">
+                <tr>
+                    <td><p align="center">
+                    &bull; Registered in England and Wales
+                    &bull; Company No. ${subsidiary.custrecord_st_subsi_regn}
+                    &bull; VAT No.: ${record.vatregnum}
+                    &bull; ${subsidiary.mainaddress_text?replace("<br />", " ")}
+                    </p></td>
+                </tr>
+            </table>
+        </macro>
+    </macrolist>
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+        table {
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 9pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+        }
+        td {
+            padding: 4px 6px;
+            <!-- border: 1px; -->
+        }
+		td p {
+            align:left;
+            line-height: 15px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0;
+            font-size: 10pt;
+            border: 1px;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 7.5pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+        table.center-aligned-table td {
+            align: center;
+            vertical-align: middle;
+            border: 1px;
+            border-color: gray;
+        }
+        
+
+
+</style>
+</head>
+<body header="nlheader" header-height="0%" footer="nlfooter" footer-height="5pt" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+<#assign currSymbol =  record.currencysymbol>
+
+<#assign recTitle = record@title>
+<#if recTitle == "Invoice">
+    <#assign docuTitle = "INVOICE">
+    <#assign duedatelabel = "DUE DATE">
+<#else>
+    <#assign docuTitle = "QUOTE">
+    <#assign duedatelabel = "Valid Through">
+</#if>    
+
+            <table style="width: 100%;">
+                <tr>
+                    <td colspan="3">
+                        <#if companyInformation.logoUrl?length != 0>
+                         <img src="${companyInformation.logoUrl}" align="right"/>
+                        </#if>
+                    </td>
+                </tr>
+                <tr>
+                    <td align="left" rowspan="3" padding-top="10px">
+                        <span class="title">${docuTitle}</span>
+                        <p padding-top="10px" padding-left="15px">
+                        ${record.billaddress}
+                        </p>
+                    </td>
+                    <td>
+                        <p align="left">
+                        <b>${docuTitle} Date</b><br />
+                        ${record.trandate}
+                        </p>
+                    </td>
+                    <td rowspan="3">
+                        <p align="left">
+                        ${subsidiary.name}<br />
+                        Attention: ${subsidiary.parent}<br />
+                        ${subsidiary.mainaddress_text}
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p align="left">
+                        <b>${docuTitle} Number</b><br />
+                        ${record.tranid}
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p align="left">
+                        <b>VAT Number</b><br />
+                        ${record.vatregnum}
+                        </p>
+                    </td>
+                </tr>
+            </table>            
+<#if record.item?has_content>
+    <#assign blnDiscountLine = record.custbody_adap_atl_show_disc_lines>
+    <#assign blnDiscountCol = record.custbody_adap_atl_shw_dscnt_to_custmr>
+    <table style="width: 100%; margin-top: 10px;">
+    <!-- start items -->
+        <#list record.item as header>
+        <#if header_index==0>
+        <thead>
+            <tr style="border-bottom:2px; border-color:black;">
+                <th colspan="12" align="left"><p align="right">${header.description@label}</p></th>
+                <th align="right" colspan="3"><p align="right">${header.quantity@label}</p></th>
+                <th align="right" colspan="3"><p align="right">Unit Price</p></th>
+                <#if blnDiscountCol>
+                    <th align="right" colspan="3"><p align="right">Discount %</p></th>
+                <#else>
+                    <th align="right" colspan="3"><p align="right">VAT</p></th>
+                </#if>
+                <th align="right" colspan="3"><p align="right">Amount ${record.currencysymbol}</p></th>
+            </tr>
+        </thead>
+        </#if>
+        </#list>
+        <tbody>
+        <#assign total_taxrate = 0>
+        <#assign total_discount = 0>
+        <#assign percent_discount = 0>
+        <#assign grossamount = 0>
+        <#assign tax1 = 0>
+        <#assign currency = record.currency>
+
+        <#list record.item as item>
+        <#assign total_discount = total_discount + item.custcol_adap_item_total_discount>
+        <#assign percent_discount = total_discount?number / record.subtotal>
+        <#assign total_taxrate = record.taxtotal / record.subtotal>
+
+        <#if item.grossamt?has_content>
+            <#assign grossamount = item.grossamt>
+        <#else>
+            <#assign tax1 = item.amount * item.taxrate1>
+            <#assign grossamount = item.amount + tax1>
+        </#if>
+
+        <#assign total_amount = grossamount - tax1>
+        <tr style="border-bottom:1px; border-color:gray;">
+            <td colspan="12" align="left">
+                <p align="left">
+                    ${item.description} &nbsp;
+                    <#if item.custcol_adap_atl_sen_number?has_content> 
+                        SEN-${item.custcol_adap_atl_sen_number}
+                    </#if>
+                    <#if item.custcol_product_start_date?has_content> 
+                        ${item.custcol_product_start_date?string('MMM d, yyyy')} -
+                    </#if>  
+                    <#if item.custcol_product_end_date?has_content> 
+                        ${item.custcol_product_end_date?string('MMM d, yyyy')}
+                    </#if>
+                    <#if item.custcol_adap_atl_import_url?has_content>
+                    <br/> 
+                        Site URL: ${item.custcol_adap_atl_import_url}
+                    </#if>   
+                </p>
+            </td>   
+            <td align="right" colspan="3"><p align="right">${item.quantity}</p></td>
+            <td align="right" colspan="3"><p align="right">${item.rate?string("#,##0.00")}</p></td>
+              <#if blnDiscountCol>
+                <td align="right" colspan="3"><p align="right">${item.custcol_adap_atl_item_disc_lines_prc}</p></td>
+              <#else>
+                <#if item.taxrate1 == 0>
+                <td align="right" colspan="3"><p align="right">No VAT</p></td>
+                 <#else>
+                <td align="right" colspan="3"><p align="right">${item.taxrate1}</p></td>
+                </#if>
+              </#if>
+            <td align="right" colspan="3"><p align="right">${total_amount?string("#,##0.00")}</p></td>
+        </tr>
+        </#list>
+            <tr style="border-bottom:1px; border-color:gray;">
+                <td colspan="24" align="left"><p align="left">Technical Contact: ${record.custbody_atl_tech_contact_name}, <br/> ${record.custbody_atl_tech_contact_email}</p></td>
+            </tr>
+            <tr style="border-bottom:1px; border-color:gray;">
+                <td colspan="24" align="left"><p align="left">End Client: ${record.entity.altname}</p></td>
+            </tr>
+            <#if blnDiscountLine==true>
+            <tr style="border-bottom:1px; border-color:gray;">
+                <td colspan="24" align="left"><p align="left">A Discount of ${percent_discount?string.percent} has been applied</p></td>
+            </tr>
+            </#if>
+            <#if record.custbody_adap_total_upgrade gt 0 > 
+            <tr style="border-bottom:1px; border-color:gray;">
+                <td colspan="24" align="left">
+                    <p align="left">This quote includes an upgrade credit of 
+                     ${record.custbody_adap_total_upgrade?replace("$", currSymbol + " ")}
+                    </p>
+                </td>
+            </tr>
+            </#if>
+        </tbody>
+    <!-- end items -->
+    </table>
+    <table style="width: 100%; margin-top: 10px;">
+            <tr style="padding-top:10px;">
+                <td colspan="9" align="right"><p align="right">${record.subtotal@label}</p></td>
+                <td colspan="3" align="right"><p align="right">${record.subtotal?string("#,##0.00")}</p></td>
+            </tr>
+            <tr>
+                <#if total_taxrate == 0>
+                    <td colspan="9" align="right" style="border-bottom:1px; margin-left:350px; border-color:gray;"><p align="right">Total No VAT</p></td>
+                <#else>
+                    <td colspan="9" align="right" style="border-bottom:1px; margin-left:350px; border-color:gray;"><p align="right">Total VAT ${total_taxrate?string.percent}</p></td>
+                 </#if>
+                <td colspan="3" align="right" style="border-bottom:1px; border-color:gray;" ><p align="right">${record.taxtotal?string("#,##0.00")}</p></td>
+                
+            </tr>
+            <tr>
+                <td colspan="9" align="right"><p align="right">Invoice Total ${record.currencysymbol}</p></td>
+                <td colspan="3" align="right"><p align="right">${record.subtotal?string("#,##0.00")}</p></td>
+            </tr>
+            <tr>
+                <td colspan="9" align="right" style="border-bottom:2px; margin-left:350px;"><p align="right">Total Net Payments ${record.currencysymbol}</p></td>
+                <td colspan="3" align="right" style="border-bottom:2px;"><p align="right">0.00</p></td>
+            </tr>
+            <tr>
+                <td colspan="9" align="right"><p align="right"><b>Amount Due ${record.currencysymbol}</b></p></td>
+                <td colspan="3" align="right"><p align="right">${record.total?string("#,##0.00")}</p></td>
+            </tr>
+    </table>
+
+    <table style="margin-top:50px;">
+    <tr>
+        <td>
+            <p align="left">
+                <b>${duedatelabel}:
+                    <#if record.duedate?has_content>
+                    &nbsp; ${record.duedate?string('dd MMM yyyy')}
+                </#if>
+            </b>
+        </p>
+    </td>
+    </tr>
+        </table>
+    <p align="left" style="font-size: 9pt;">
+    ${record.custbody_adap_tc_option_content?replace("<br />", "<br />")}<br /><br />
+    ${record.custbody_adap_tc_add_notes?replace("<br />", "<br />")}<br /><br />
+    By accepting this quote/invoice, you accept the terms and conditions for the products listed herein. In all cases,
+    the terms which you accept are between you and the applicable software publisher and/or distributor.
+    The applicable terms and conditions are set forth in the Product and Software Terms document located at: <a href="https://www.adaptavist.com/company/legal" style="color: blue;">Adaptavist - Legal</a>
+    </p>
+
+    <#assign blnSignBlock = record.custbody_adap_signature_block>
+    <#if blnSignBlock>
+    <table style="margin-top:50px;">
+        <tr>
+            <td>
+                <p align="left">
+                    Quote accepted and purchase authorised on this&nbsp;_________&nbsp;of&nbsp;__________________________&nbsp;____________&nbsp;by<br/>
+                    <p margin-left="260px" margin-top="-3">
+                    [Day]
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    [Month]
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    [Year]
+                    </p>
+                <p>
+                    ___________________________________________________&nbsp;on behalf of&nbsp;__________________________________________.<br/> 
+                    [Print Authorized Purchaser Name]   
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    [Print Company Name] 
+                </p>
+
+                <p align="left">
+                    ____________________________________________________<br/>
+                    Signature 
+                </p>
+
+               <p align="left">
+                    ____________________________________________________<br/>
+                    Title 
+                </p>
+
+                <p align="left">
+                    Authorized Purchaser Point of Contact (phone/email):____________________________________________________
+                </p>
+                </p>
+                <hr/>
+            </td>
+        </tr>
+    </table>
+    </#if>
+    <#if recTitle == "Invoice">
+        <table>
+            <tr>
+                <td>
+                    <p align="left">
+                    <b><u>Payment Information:</u></b><br/><br/>
+                    Account Name: ${record.subsidiary} <br/><br/>
+                    Bank: National Westminster Bank PLC, Southgate 12 The Broadway Southgate London N14 6PL <br/><br/>
+                    Please kindly ensure the following: <br/>
+                    </p>
+                    <ul style="padding-left: 20px;">
+                        <li style="color: red;">Check the currency type of this invoice (GBP, USD, EUR, CAD). Select the most appropriate bank account details from
+                        the table below that corresponds to the currency of this invoice. If unsure, please check with the accounts team. You
+                        will assume any banks fees on the Client side, and any FX differences if payments are paid into the incorrect bank
+                        account.
+                        </li>
+                        <li>Use the “Invoice Number(s)” as payment reference to help us locate your payment</li>
+                        <li>Please select the most appropriate bank account to make payments to, based on the currency of this invoice</li>
+                    </ul>    
+                </td>
+            </tr>
+        </table>
+           <table class="center-aligned-table" width="100%">
+                    <tr>
+                        <td><b>Currency</b></td>
+                        <td width="90px"><b>Account No.</b></td>
+                        <td width="90px"><b>Sort Code</b></td>
+                        <td><b>IBAN</b></td>
+                        <td width="90"><b>BIC / Swift <br/>&nbsp;&nbsp;&nbsp; Code</b></td>
+                    </tr>
+                    <tr>
+                        <td>British Pounds Sterling - GBP (£)</td>
+                        <td>73878596</td>
+                        <td>60-08-46</td>
+                        <td>GB61NWBK60084673878596</td>
+                        <td>NWBKGB2L</td>
+                    </tr>
+                    <tr>
+                        <td>Euro - EUR (€)</td>
+                        <td colspan="2">Please use IBAN and Swift</td>
+                        <td>GB98NWBK60720670671990</td>
+                        <td>NWBKGB2L</td>
+                    </tr>
+                    <tr>
+                        <td>United States Dollar - USD ($)</td>
+                        <td colspan="2">Please use IBAN and Swift</td>
+                        <td>GB73NWBK60730170671826</td>
+                        <td>NWBKGB2L</td>
+                    </tr>
+                    <tr>
+                        <td>Canadian Dollar - CAD ($)</td>
+                        <td colspan="2">Please use IBAN and Swift</td>
+                        <td>GB50NWBK60730170680000</td>
+                        <td>NWBKGB2L</td>
+                    </tr>
+            </table>
+    </#if>
+                <p style="font-size: 9pt; line-height: 15px; align:left">
+                For any queries please contact the finance department at <a href="mailto:accounts@adaptavist.com" style="color: blue;">accounts@adaptavist.com</a> or call:<br/>
+                UK: +44 (0)20 8323 8910<br/>
+                US: +1-(516)-540-7835<br/><br/>
+                We are grateful for your business and appreciate your prompt payment very much<br/>
+                </p>
+                <hr/>
+               
+</#if>
+</body>
+</pdf>

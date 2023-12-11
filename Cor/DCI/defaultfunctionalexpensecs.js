@@ -3,48 +3,79 @@
  * @NScriptType ClientScript
  * @NModuleScope SameAccount
  */
-define(['N/record', 'N/search', 'N/runtime', 'N/currentRecord'],
+define(['N/record', 'N/search', 'N/currentRecord'],
     /**
      * @param{record} record
      * @param{search} search
-     * @param{runtime} runtime
      * @param{currentRecord} currentRecord
      */
-    function (record, search, runtime, currentRecord) {
+    function (record, search, currentRecord) {
 
         function pageInit(scriptContext) {
             console.log("pageInit", "TEST1")
         }
 
         function fieldChanged(scriptContext) {
-            let strFieldChanging = scriptContext.fieldId;   
-            if (strFieldChanging === 'department') {
-                setData(scriptContext);
-            }
-            if (strFieldChanging === 'custcol_cseg_npo_program') {
-                setData(scriptContext);
-            }
+
         }
-        function sublistChanged(scriptContext) {
-            let sublistName = scriptContext.sublistId;
-            if (sublistName === 'line') {
-                setData(scriptContext);
+
+        function validateLine(scriptContext) {
+            let strFieldChanging = scriptContext.sublistId;   
+            console.log(strFieldChanging)
+            if (strFieldChanging === 'line' || strFieldChanging === 'expense') {
+                setData(scriptContext, search);
+                return true
             }
+            // if (strFieldChanging === 'line') {
+            //     setData(scriptContext);
+            // }
+            // if (strFieldChanging === 'line') {
+            //     setData(scriptContext);
+            // }
         }
+
 
         // PRIVATE FUNCTION
 
-        function setData(scriptContext){
+        function setData(scriptContext, search){
             try {
                 let blnChecker;
+                let arrSegmentCode;
+                let account;
                 let objCurrentRecord = scriptContext.currentRecord;
                 let sublistName = scriptContext.sublistId;
-                let strAccountType = objCurrentRecord.getCurrentSublistValue({
+                let recType = objCurrentRecord.type
+                let fieldLookUp
+                let strAccountType
+                console.log("recType", recType)
+                if (recType == 'expensereport'){
+                    account = "expenseaccount"
+                } else {
+                    account = "account"
+                }
+                let intAccount = objCurrentRecord.getCurrentSublistValue({
                     sublistId: sublistName,
-                    fieldId: 'accounttype'
+                    fieldId: account
                 })
+                console.log("intAccount", intAccount)
+                if (intAccount){
+                    console.log("test")
+                    try {
+                        fieldLookUp = search.lookupFields({
+                            type: search.Type.ACCOUNT,
+                            id: intAccount,
+                            columns: 'type'
+                        });
+                        console.log("fieldLookUp",fieldLookUp)
+                        if (fieldLookUp){
+                        strAccountType = fieldLookUp.type[0].value;
+                        }
+                    } catch (e) {
+                        console.log(e.message)
+                    }
+                }
                 console.log("strAccountType", strAccountType)
-                if (strAccountType == 'Expense'){
+                if (strAccountType == 'Expense' || strAccountType == 'OthExpense'){
                     let intDepartment = objCurrentRecord.getCurrentSublistValue({
                         sublistId: sublistName,
                         fieldId: 'department'
@@ -53,36 +84,63 @@ define(['N/record', 'N/search', 'N/runtime', 'N/currentRecord'],
                         sublistId: sublistName,
                         fieldId: 'custcol_cseg_npo_program'
                     })
-                    console.log("department", intDepartment)
+                    let intSuiteKey = objCurrentRecord.getCurrentSublistValue({
+                        sublistId: sublistName,
+                        fieldId: 'custcol_npo_suitekey'
+                    })
+                    console.log("intDepartment", intDepartment)
                     console.log("intProgram", intProgram)
+                    console.log("intSuiteKey", intSuiteKey)
                 
-                    if (intProgram){
-                        blnChecker = 'program'
-                        intFilterData = intProgram
-                    } else {
+                    if (intDepartment){
                         blnChecker = 'department'
                         intFilterData = intDepartment
+                    } else if (intProgram) {
+                        blnChecker = 'program'
+                        intFilterData = intProgram
+                    } else if (intSuiteKey){
+                        blnChecker = 'suitekey'
+                        intFilterData = intSuiteKey
+                    } else {
+                        blnChecker = null
                     }
-                    let arrSegmentCode = searchSegmentData(intFilterData, blnChecker)
+                    if (blnChecker){
+                        arrSegmentCode = searchSegmentData(intFilterData, blnChecker)
+                    }
                     if (arrSegmentCode.length > 0){
                         objCurrentRecord.setCurrentSublistValue({
                             sublistId: sublistName,
                             fieldId: 'custcol_npo_suitekey',
                             value: arrSegmentCode[0].name,
-                            ignoreFieldChanged: true
+                            ignoreFieldChange: true,
+                            fireSlavingSync: true
+                        });
+                        objCurrentRecord.setCurrentSublistValue({
+                            sublistId: sublistName,
+                            fieldId: 'department',
+                            value: arrSegmentCode[0].department,
+                            ignoreFieldChange: true,
+                            fireSlavingSync: true
+                        });
+                        objCurrentRecord.setCurrentSublistValue({
+                            sublistId: sublistName,
+                            fieldId: 'custcol_cseg_npo_program',
+                            value: arrSegmentCode[0].program,
+                            ignoreFieldChange: true,
+                            fireSlavingSync: true
                         });
                         objCurrentRecord.setCurrentSublistValue({
                             sublistId: sublistName,
                             fieldId: 'custcol_cseg_npo_exp_type',
                             value: arrSegmentCode[0].functionalExpenses,
-                            ignoreFieldChanged: true
+                            ignoreFieldChange: true,
+                            fireSlavingSync: true
                         });
                     }
                 }
             } catch (err) {
                 log.error('searchRecord', err.message);
             }
-            return true;
         }
 
         function searchSegmentData(intFilterData, blnChecker){
@@ -92,8 +150,10 @@ define(['N/record', 'N/search', 'N/runtime', 'N/currentRecord'],
                     type: 'customrecord_npo_segment_code',
                     filters: (blnChecker === 'department') ? [
                         ['custrecord_sgdepartment.internalid', 'anyof', intFilterData]
-                    ] : [
+                    ] : (blnChecker === 'program') ? [
                         ['custrecord_41_cseg_npo_program.internalid', 'anyof', intFilterData]
+                    ] : [
+                        ['internalidnumber', 'equalto', intFilterData]
                     ],
                     columns: [
                         search.createColumn({ name: 'internalid' }),
@@ -131,8 +191,8 @@ define(['N/record', 'N/search', 'N/runtime', 'N/currentRecord'],
         }
         return {
             pageInit: pageInit,
-            fieldChanged: fieldChanged,
-            sublistChanged: sublistChanged
+            validateLine: validateLine,
+            fieldChanged: fieldChanged
         };
 
-    });
+    });    

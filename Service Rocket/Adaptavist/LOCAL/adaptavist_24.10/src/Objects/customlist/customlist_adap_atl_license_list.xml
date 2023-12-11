@@ -1,0 +1,24 @@
+<customlist scriptid="customlist_adap_atl_license_list">
+  <description></description>
+  <isinactive>F</isinactive>
+  <isordered>T</isordered>
+  <name>Atlassian License Type</name>
+  <customvalues>
+    <customvalue scriptid="upgrade">
+      <isinactive>F</isinactive>
+      <value>UPGRADE</value>
+    </customvalue>
+    <customvalue scriptid="renewal">
+      <isinactive>F</isinactive>
+      <value>RENEWAL</value>
+    </customvalue>
+    <customvalue scriptid="new">
+      <isinactive>F</isinactive>
+      <value>NEW</value>
+    </customvalue>
+    <customvalue scriptid="commercial">
+      <isinactive>F</isinactive>
+      <value>COMMERCIAL</value>
+    </customvalue>
+  </customvalues>
+</customlist>

@@ -20,19 +20,18 @@
                     <#if record.custbody_adap_enduser_country?has_content>
                         <#assign country = record.custbody_adap_enduser_country>
                     </#if>
-                    <#if record.billstate?has_content>
-                        <#assign state = record.billstate>
+                    <#if record.shipstate?has_content>
+                        <#assign state = record.shipstate>
                     </#if>
                 <#else>
                     <#if record.subsidiary.country?has_content>
                         <#assign country = record.subsidiary.country>
                     </#if>
-                    <#if record.entity.billstate?has_content>
-                        <#assign state = record.entity.billstate>
-                    <#else>
-                        <#assign state = record.billstate>
+                    <#if record.shipstate?has_content>
+                        <#assign state = record.shipstate>
                     </#if>
                 </#if>
+                
 
 
                 <#if country == "Canada">
@@ -222,25 +221,8 @@
 </style>
 </head>
 <body header="nlheader" header-height="0%" footer="nlfooter" footer-height="5pt" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
-<#if record.currencysymbol="GBP">
-    <#assign currSymbol = "£">
-<#elseif record.currencysymbol="EUR">
-    <#assign currSymbol = "€">
-<#elseif record.currencysymbol="MYR">
-    <#assign currSymbol = "RM">
-<#elseif record.currencysymbol="ZAR">
-    <#assign currSymbol = "R">
-<#elseif record.currencysymbol="ZAR">
-    <#assign currSymbol = "د.إ">
-<#elseif record.currencysymbol="AED">
-    <#assign currSymbol = "د.إ">
-<#elseif record.currencysymbol="ISK">
-    <#assign currSymbol = "Kr">
-<#elseif record.currencysymbol="UAH">
-    <#assign currSymbol = "₴">
-<#else>
-    <#assign currSymbol = "$">
-</#if> 
+
+<#assign currSymbol = record.currencysymbol>
 
 <#assign recTitle = record@title>
 <#if recTitle == "Invoice">
@@ -254,9 +236,9 @@
             <table style="width: 100%;">
                 <tr>
                     <td colspan="3">
-                        <#if subsidiary.logo@url?length != 0>
-                            <img src="${subsidiary.logo@url}" align = "right"/>
-                        </#if>
+                    <#if subsidiary.logo@url?length != 0>
+                        <img src="${subsidiary.logo@url}" align="right" style="width: 230px; height: 130px; dpi:300;"/>
+                    </#if>
                     </td>
                 </tr>
                 <tr>
@@ -298,7 +280,6 @@
                 </tr>
             </table>            
 <#if record.item?has_content>
-
     <#assign blnDiscountLine = record.custbody_adap_atl_shw_dscnt_to_custmr> 
     <#assign blnDiscountCol = record.custbody_adap_atl_show_disc_lines> 
     <table style="width: 100%; margin-top: 10px;">
@@ -321,7 +302,15 @@
                 </thead>
             </#if>
         </#list>
+       
         <tbody>
+         <#if recTitle == "Invoice">
+                <#if record.otherrefnum?has_content> 
+                <tr style="border-bottom:1px; border-color:gray;">
+                    <td colspan="24" align="left"><p align="left">${record.otherrefnum}</p></td>
+                </tr>
+                </#if> 
+        </#if> 
         <#assign total_taxamount = 0>
         <#assign total_upcredit = 0>
         <#assign total_gross = 0>
@@ -350,12 +339,10 @@
             <#assign customrecord = record.custbody_adap_print_object?eval>
             </#if>
         </#if>
-        
+       
         <#assign taxRateRaw1 = 0>
         <#assign lineCount = 0>
-        <#assign addBuffer_upcredit = 0>
         <#assign calculated_upcredit = 0>
-        <#assign rawBuffer = 0>
         <#assign lineTax = 0>
         <#assign taxRateRawTotal = 0>
         <#assign taxRatePercent = 0>
@@ -383,13 +370,11 @@
                     <#assign taxRateRawTotal = taxRateRawTotal + taxRateRaw1>
             <#else>
                 <#assign lineTax = "No " + taxTotalLabel?keep_before("Total")>
-            </#if> 
+            </#if>
         <#else>
             <#assign lineTax = "No " + taxTotalLabel?keep_before("Total")>
         </#if>
-        <#if item.taxtotal?has_content> 
-            <#assign taxRatePercent = item.taxtotal>
-        </#if>
+
         <#if item.custcol_adap_atl_item_disc_lines?has_content> 
             <#assign gross_amount = item.rate - item.custcol_adap_atl_item_disc_lines>
           
@@ -404,13 +389,6 @@
         <#if item.custcol_adap_atl_cart_item_inilstprc?has_content> 
         <#assign initialListPrice = item.custcol_adap_atl_cart_item_inilstprc>
         <#if initialListPrice gt 0 >
-            <#if recTitle == "Invoice">
-                <#if record.otherrefnum?has_content> 
-                <tr style="border-bottom:1px; border-color:gray;">
-                    <td colspan="24" align="left"><p align="left">${record.otherrefnum}</p></td>
-                </tr>
-                </#if> 
-            </#if> 
             <tr style="border-bottom:1px; border-color:gray;">
                 <td colspan="12" align="left">
                     <p align="left">
@@ -438,6 +416,12 @@
                     </p>
                 </td>   
                 <td align="right" colspan="3"><p align="right">${item.quantity}</p></td>
+                
+                <#if lineTax == "No " + taxTotalLabel?keep_before("Total")>
+                    <#assign newTaxLine = item.taxcode>
+                <#else>
+                    <#assign newTaxLine = lineTax>
+                </#if>
                 <#if blnDiscountCol>
                     <td align="right" colspan="3"><p align="right">${item.rate?string("#,##0.00")}</p></td> // UNIT PRICE
                     <td align="right" colspan="3">
@@ -447,11 +431,11 @@
                             </#if>
                         </p>
                      </td>
-                    <td align="right" colspan="3"><p align="right">${lineTax}</p></td> // TEST
+                    <td align="right" colspan="3"><p align="right">${newTaxLine}</p></td> // TEST
                     <td align="right" colspan="3"><p align="right">${gross_amount?string("#,##0.00")}</p></td> // GROSS AMOUNT
                 <#else>
                     <td align="right" colspan="3"><p align="right">${gross_amount?string("#,##0.00")}</p></td> // UNIT PRICE
-                    <td align="right" colspan="3"><p align="right">${lineTax}</p></td>
+                    <td align="right" colspan="3"><p align="right">${newTaxLine}</p></td>
                     <td align="right" colspan="3"><p align="right">${gross_amount?string("#,##0.00")}</p></td> // UNIT PRICE
                 </#if>
                 
@@ -459,11 +443,13 @@
         </#if>
         </#if>
         </#list>
-            <tr style="border-bottom:1px; border-color:gray;">
+            <#if record.custbody_atl_tech_contact_name?has_content>
+                <tr style="border-bottom:1px; border-color:gray;">
                 <td colspan="24" align="left"><p align="left">
                 Technical Contact: ${record.custbody_atl_tech_contact_name}, <br/> ${record.custbody_atl_tech_contact_email}</p>
                 </td>
             </tr>
+            </#if>
             <#if record.custbody_adap_enduser_name?has_content>
                 <tr style="border-bottom:1px; border-color:gray;">
                     <td colspan="24" align="left">
@@ -487,10 +473,15 @@
                     <td colspan="24" align="left"><p align="left">Reseller: ${record.entity.altname}</p></td>
                 </tr>
                 </#if>
-            <#else>
+            <#else> 
                 <tr style="border-bottom:1px; border-color:gray;">
                     <td colspan="24" align="left">
                     <p align="left">End Client: ${record.entity.altname}</p>
+                    </td>
+                </tr>
+                <tr style="border-bottom:1px; border-color:gray;">
+                    <td colspan="24" align="left">
+                    <p align="left">End Client Address: ${record.shipaddress}</p>
                     </td>
                 </tr>
             </#if> 
@@ -506,12 +497,11 @@
             </#if>
              
                 <#assign calculated_upcredit = total_upcredit>
-
                 <#if calculated_upcredit gt 0>
                 <tr style="border-bottom:1px; border-color:gray;">
                     <td colspan="24" align="left">
                         <p align="left">This quote includes an upgrade credit of 
-                        ${currSymbol}${calculated_upcredit?string("#,##0.00")}
+                        ${currSymbol} ${calculated_upcredit?string("#,##0.00")} <br />
                         </p>
                     </td>
                 </tr>
@@ -536,31 +526,36 @@
         </tbody>
     <!-- end items -->
     </table>
+
     <table style="width: 100%; margin-top: 10px;">
             <tr style="padding-top:10px;">
                 <td colspan="9" align="right"><p align="right">${record.subtotal@label}</p></td>
 
                 <td colspan="3" align="right"><p align="right">${total_sub?string("#,##0.00")}</p></td>
             </tr>
+            <#list customrecord as item>
+            <#if item.taxtotal?has_content>
+            <#assign taxRatePercent = item.taxtotal>
+            <#assign total_taxamount = item.taxamount>
+                <tr>
+                    <#if total_gross != 0>
+                        <#assign total_rate = total_taxamount / total_sub>
+                    <#else>
+                        <#assign total_rate = 0>
+                    </#if>
+
+                    <#if total_rate == 0>
+                        <td colspan="9" align="right" style="border-bottom:1px; margin-left:270px; border-color:gray;"><p align="right">${taxTotalLabel} ${taxRatePercent}%</p></td>
+                    <#else>
+                        <td colspan="9" align="right" style="border-bottom:1px; margin-left:270px; border-color:gray;"><p align="right">${taxTotalLabel} ${taxRatePercent}%</p></td>
+                    </#if>
+                    <td colspan="3" align="right" style="border-bottom:1px; border-color:gray;" ><p align="right">${total_taxamount?string("#,##0.00")}</p></td>
+                </tr>
+            </#if>
+            </#list>
+
             <tr>
-                <#if total_gross != 0>
-                    <#assign total_rate = total_taxamount / total_sub>
-                <#else>
-                    <#assign total_rate = 0>
-                </#if>
-
-                <#assign totrate = total_rate * 100>
-                <#assign deci_totrate = totrate?string("#,##0.000")>
-
-                <#if total_rate == 0>
-                    <td colspan="9" align="right" style="border-bottom:1px; margin-left:270px; border-color:gray;"><p align="right">${taxTotalLabel}</p></td>
-                <#else>
-                    <td colspan="9" align="right" style="border-bottom:1px; margin-left:270px; border-color:gray;"><p align="right">${taxTotalLabel} ${taxRatePercent}%</p></td>
-                 </#if>
-                <td colspan="3" align="right" style="border-bottom:1px; border-color:gray;" ><p align="right">${total_taxamount?string("#,##0.00")}</p></td>
-            </tr>
-            <tr>
-
+   
                 <#assign total_invamt = total_sub + total_taxamount>
                 <td colspan="9" align="right"><p align="right">Invoice Total ${record.currencysymbol}</p></td>
                 <td colspan="3" align="right"><p align="right">${total_invamt?string("#,##0.00")}</p></td>

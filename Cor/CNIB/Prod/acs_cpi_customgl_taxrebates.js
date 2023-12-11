@@ -8,12 +8,10 @@ var contextObj = nlapiGetContext();
 
 function customizeGlImpact(transactionRecord, standardLines, customLines, book) {
     nlapiLogExecution('AUDIT', 'customizeGlImpact', 'START');
-
     var context = nlapiGetContext().getExecutionContext();
     var isCalculateTaxRebates = transactionRecord.getFieldValue('custbody_nfp_cdn_rebate_gl');
     nlapiLogExecution('AUDIT', 'customizeGlImpact', 'context - ' + context);
     nlapiLogExecution('AUDIT', 'customizeGlImpact', 'isCalculateTaxRebates - ' + isCalculateTaxRebates);
-
     var remainingUsage = contextObj.getRemainingUsage();
     nlapiLogExecution('AUDIT', 'customizeGlImpact', 'remainingUsage BEFORE - ' + remainingUsage);
 
@@ -63,36 +61,32 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
             var explLocationId = transactionRecord.getLineItemValue('expense', 'cseg_npo_region', x);
             var explDepartmentId = transactionRecord.getLineItemValue('expense', 'department', x);
             var explEntitytId = transactionRecord.getLineItemValue('expense', 'custcol_ns_dist_subsidiary', x);
+            var explProgram = transactionRecord.getLineItemValue('expense', 'cseg_npo_program', x);
 
- 
-            
             arrExpenseLines.push({
-                explTaxRate1: !isEmpty(explTaxRate1) ? (parseFloat(explTaxRate1) / 100.0) : 0.00000,
-                explTaxRate2: !isEmpty(explTaxRate2) ? (parseFloat(explTaxRate2) / 100.0) : 0.00000,
-                explAmount: !isEmpty(explAmount) ? parseFloat(explAmount) : 0.00000,
+                explTaxRate1: !isEmpty(explTaxRate1) ? (parseFloat(explTaxRate1) / 100.0) : 0.0,
+                explTaxRate2: !isEmpty(explTaxRate2) ? (parseFloat(explTaxRate2) / 100.0) : 0.0,
+                explAmount: !isEmpty(explAmount) ? parseFloat(explAmount) : 0.0,
                 explAccountId: !isEmpty(explAccountId) ? parseInt(explAccountId) : null,
                 explLocationId: !isEmpty(explLocationId) ? parseInt(explLocationId) : null,
                 explDepartmentId: !isEmpty(explDepartmentId) ? parseInt(explDepartmentId) : null,
-                explEntitytId: !isEmpty(explEntitytId) ? parseInt(explEntitytId) : null
+                explEntitytId: !isEmpty(explEntitytId) ? parseInt(explEntitytId) : null,
+                explProgram: !isEmpty(explProgram) ?  parseInt(explProgram) : null
             });
         }
         nlapiLogExecution('AUDIT', 'arrExpenseLines', JSON.stringify(arrExpenseLines));
 
         // CALCULATE REBATES
         for (var x = 0; x < arrExpenseLines.length; x++) {
-            var taxAmount;
-            var taxRebate;
-            var nonRebateAmount;
-
-            explTaxRate1 = fixedDecimalPlaces(arrExpenseLines[x].explTaxRate1)
-            explAmount = fixedDecimalPlaces(arrExpenseLines[x].explAmount)
-            var amount = explAmount
+            var taxAmount = 0;
+            var taxRebate = 0;
+            var nonRebateAmount = 0;
+            var amount = arrExpenseLines[x].explAmount;
             // for GST/HST
-            if (amount >= 0 && arrExpenseLines[x].explTaxRate1 >= 0) {
-                var taxRate = explTaxRate1;
-                var taxAmount = amount * taxRate;
-                taxAmount = taxAmount
-                var rebatePercentage;
+            if (amount > 0 && arrExpenseLines[x].explTaxRate1 > 0) {
+                var taxRate = arrExpenseLines[x].explTaxRate1;
+                taxAmount = amount * taxRate;
+                var rebatePercentage = 0;
                 
                 if (taxRate == 0.05) {
                     // GST
@@ -105,9 +99,7 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
                     rebatePercentage = 0.6969; // 69.69%
                 }
                 taxRebate = taxAmount * rebatePercentage;
-                taxRebate = fixedDecimalPlaces(taxRebate)
                 nonRebateAmount = taxAmount - taxRebate;
-                nonRebateAmount = fixedDecimalPlaces(nonRebateAmount)
 
                 // Counter GL
                 arrCustomLines.push({
@@ -116,7 +108,8 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
                     isDebit: false,
                     locationId: mainLocationId,
                     departmentId: mainDepartmentId,
-                    entityId: mainEntityId
+                    entityId: mainEntityId,
+                    program: arrExpenseLines[x].explProgram,
                 });
 
                 // Rebate GL
@@ -126,7 +119,8 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
                     isDebit: true,
                     locationId: mainLocationId,
                     departmentId: mainDepartmentId,
-                    entityId: mainEntityId
+                    entityId: mainEntityId,
+                    program: arrExpenseLines[x].explProgram,
                 });
 
                 // Non-Rebate GL - remaing amount after rebate has been added.
@@ -136,18 +130,17 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
                     isDebit: true,
                     locationId: arrExpenseLines[x].explLocationId,
                     departmentId: arrExpenseLines[x].explDepartmentId,
-                    entityId: arrExpenseLines[x].explEntitytId
+                    entityId: arrExpenseLines[x].explEntitytId,
+                    program: arrExpenseLines[x].explProgram,
                 });
-                nlapiLogExecution('AUDIT','for GST/HST', JSON.stringify(arrCustomLines));
             }
             // for PST
-            if (amount >= 0 && arrExpenseLines[x].explTaxRate2 >= 0) {
+            if (amount > 0 && arrExpenseLines[x].explTaxRate2 > 0) {
                 // get the tax rate from the expense line
-                explTaxRate2 = fixedDecimalPlaces(arrExpenseLines[x].explTaxRate2)
-                var taxRate = explTaxRate2;
-                taxAmount = amount * taxRate
-                taxAmount = fixedDecimalPlaces(taxAmount)
+                var taxRate = arrExpenseLines[x].explTaxRate2;
+                taxAmount = amount * taxRate;
                 var accountId = getAccountId(arrStandardLines, taxAmount);
+                nlapiLogExecution('AUDIT', 'accountId', 'accountId ' + accountId + ' taxAmount ' + taxAmount + ' taxRate ' + taxRate);
                 // Credit
                 arrCustomLines.push({
                     accountId: accountId,
@@ -155,7 +148,8 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
                     isDebit: false,
                     locationId: mainLocationId,
                     departmentId: mainDepartmentId,
-                    entityId: mainEntityId
+                    entityId: mainEntityId,
+                    program: arrExpenseLines[x].explProgram,
                 });
                 // Debit
                 arrCustomLines.push({
@@ -164,13 +158,13 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
                     isDebit: true,
                     locationId: arrExpenseLines[x].explLocationId,
                     departmentId: arrExpenseLines[x].explDepartmentId,
-                    entityId: arrExpenseLines[x].explEntitytId
+                    entityId: arrExpenseLines[x].explEntitytId,
+                    program: arrExpenseLines[x].explProgram,
                 });
-                nlapiLogExecution('AUDIT','for PST', JSON.stringify(arrCustomLines));
             }
         }
-        
         nlapiLogExecution('AUDIT', 'arrCustomLines', JSON.stringify(arrCustomLines));
+
         // ADD CUSTOM GL LINES
         for (var x = 0; x < arrCustomLines.length; x++) {
 
@@ -178,6 +172,7 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
             var amount = arrCustomLines[x].amount;
             var isDebit = arrCustomLines[x].isDebit;
             var locationId = arrCustomLines[x].locationId;
+            var program = arrCustomLines[x].program;
             var departmentId = arrCustomLines[x].departmentId;
             var entityId = arrCustomLines[x].entityId;
 
@@ -186,6 +181,7 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
                                                                 + '\n,isDebit: ' + isDebit
                                                                 + '\n,locationId: ' + locationId
                                                                 + '\n,departmentId: ' + departmentId
+                                                                + '\n,program: ' + program
                                                                 + '\n,entityId: ' + entityId);
 
 
@@ -200,6 +196,7 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book) 
             if (!isEmpty(departmentId)) customLine.setDepartmentId(departmentId);
             // if (!isEmpty(entityId)) customLine.setEntityId(entityId);
             if (!isEmpty(locationId)) customLine.setSegmentValueId('cseg_npo_region', locationId);
+            if (!isEmpty(program)) customLine.setSegmentValueId('cseg_npo_program', program);
             customLine.setMemo('Tax Rebates Custom GL');
         }
     }
@@ -214,7 +211,7 @@ function isEmpty(value) {
 }
 
 function fixedDecimalPlaces(amount) {
-    return (Math.round(amount * 100) / 100).toFixed(5);
+    return (Math.round(amount * 100) / 100).toFixed(2);
 }
 
 function getAccountId(arrStandardLines, taxAmount) {
@@ -226,12 +223,11 @@ function getAccountId(arrStandardLines, taxAmount) {
         var stdDebitAmount = fixedDecimalPlaces(currentStandardLine.stdDebitAmount);
         var stdAccountId = currentStandardLine.stdAccountId;
 
-        // if (!isEmpty(stdAccountId)) {
-        //     if (stdDebitAmount == taxAmount) {
-        //         nlapiLogExecution('AUDIT', 'getAccountId', 'stdAccountId ' + stdAccountId + ' stdDebitAmount ' + stdDebitAmount + ' taxAmount ' + taxAmount + ' result: ' + (stdDebitAmount == taxAmount));
-        //         return stdAccountId;
-        //     }
-        // }
-        return stdAccountId;
+        if (!isEmpty(stdAccountId)) {
+            if (stdDebitAmount == taxAmount) {
+                nlapiLogExecution('AUDIT', 'getAccountId', 'stdAccountId ' + stdAccountId + ' stdDebitAmount ' + stdDebitAmount + ' taxAmount ' + taxAmount + ' result: ' + (stdDebitAmount == taxAmount));
+                return stdAccountId;
+            }
+        }
     }
 }
