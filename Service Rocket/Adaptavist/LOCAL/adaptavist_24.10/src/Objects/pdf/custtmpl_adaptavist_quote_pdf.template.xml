@@ -237,7 +237,11 @@
                 <tr>
                     <td colspan="3">
                     <#if subsidiary.logo@url?length != 0>
-                        <img src="${subsidiary.logo@url}" align="right" style="width: 230px; height: 130px; dpi:300;"/>
+                        <#if record.subsidiary == "Grupo Salenda S.L.">
+                            <img src="${subsidiary.logo@url}" align="right" style="width: 200px; height: 200px; dpi:300;"/>
+                        <#else>
+                            <img src="${subsidiary.logo@url}" align="right" style="width: 300px; height: 100px; dpi:300;" />
+                        </#if>
                     </#if>
                     </td>
                 </tr>
@@ -353,10 +357,10 @@
 
         <#if item.custcol_adap_atl_item_disc_amount?has_content>
             <#if item.custcol_adap_atl_item_disc_amount gt 0 >
-            <#assign total_upcredit = total_upcredit + item.custcol_adap_atl_item_disc_amount>
+                <#assign total_upcredit = total_upcredit + item.custcol_adap_atl_item_disc_amount>
+            </#if>
         </#if>
 
-        </#if>
         <#if item.taxrate1?has_content> 
             <#if item.taxrate1 gt 0>
                 <#assign tax1 = item.taxrate1>
@@ -418,7 +422,11 @@
                 <td align="right" colspan="3"><p align="right">${item.quantity}</p></td>
                 
                 <#if lineTax == "No " + taxTotalLabel?keep_before("Total")>
-                    <#assign newTaxLine = item.taxcode>
+                    <#if record.subsidiary == "Adaptavist UK Services Limited">
+                        <#assign newTaxLine = item.taxcode>
+                    <#else>
+                        <#assign newTaxLine = lineTax>
+                    </#if>
                 <#else>
                     <#assign newTaxLine = lineTax>
                 </#if>
@@ -456,6 +464,7 @@
                     <p align="left">End Client: ${record.custbody_adap_enduser_name}</p>
                     </td>
                 </tr>
+                <#if record.subsidiary == "Adaptavist Inc">
                 <tr style="border-bottom:1px; border-color:gray;">
                     <td colspan="24" align="left">
                     <#assign endAddr1 = record.custbodyadap_enduser_address1>
@@ -468,6 +477,7 @@
                     <p align="left">End Client Address: ${endAddress}</p>
                     </td>
                 </tr>
+                </#if>
                 <#if record.custbody_adap_enduser_ispartner>
                 <tr style="border-bottom:1px; border-color:gray;">
                     <td colspan="24" align="left"><p align="left">Reseller: ${record.entity.altname}</p></td>
@@ -479,11 +489,13 @@
                     <p align="left">End Client: ${record.entity.altname}</p>
                     </td>
                 </tr>
+                <#if record.subsidiary == "Adaptavist Inc">
                 <tr style="border-bottom:1px; border-color:gray;">
                     <td colspan="24" align="left">
                     <p align="left">End Client Address: ${record.shipaddress}</p>
                     </td>
                 </tr>
+                </#if>
             </#if> 
             <#if blnDiscountLine==true>
                 <tr style="border-bottom:1px; border-color:gray;">

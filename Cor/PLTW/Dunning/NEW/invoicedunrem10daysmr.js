@@ -135,18 +135,17 @@ define(['N/record', 'N/runtime', 'N/email', 'N/file', 'N/render', './NSUtilvSS2'
             }
 
             //Collections Letter file creation and attachment
-            if (bPrintInvoice) {
-               var xmlStringForPrinted = xmlString;
-               var stReminderLetterURL = runtime.getCurrentScript().getParameter('custscript_letter');
-               xmlStringForPrinted += '<pdf src="' + encodeURI(stReminderLetterURL) + '" />';
-               xmlStringForPrinted = xmlStringForPrinted.replace(/&(?!amp;)/g, '&amp;');
-               xmlStringForPrinted += "</pdfset>";
-               var objInvoicePDF = render.xmlToPdf({ xmlString: xmlStringForPrinted });
-               objInvoicePDF.name = objCustomer.getText('companyname') + ' - Invoices.pdf';
-               objInvoicePDF.folder = stFolder;
-               objInvoicePDF.save();
-            }
-
+            var xmlStringForPrinted = xmlString;
+            var stReminderLetterURL = runtime.getCurrentScript().getParameter('custscript_letter');
+            xmlStringForPrinted += '<pdf src="' + encodeURI(stReminderLetterURL) + '" />';
+            xmlStringForPrinted = xmlStringForPrinted.replace(/&(?!amp;)/g, '&amp;');
+            xmlStringForPrinted += "</pdfset>";
+            var objInvoicePDF = render.xmlToPdf({ xmlString: xmlStringForPrinted });
+            objInvoicePDF.name = objCustomer.getText('companyname') + ' - Invoices.pdf';
+            objInvoicePDF.folder = stFolder;
+            objInvoicePDF.save();
+              
+          
             xmlString += "</pdfset>";
             var objInvoicePDF = render.xmlToPdf({ xmlString: xmlString });
             objInvoicePDF.name = objCustomer.getText('companyname') + ' - Invoices.pdf';
@@ -161,7 +160,7 @@ define(['N/record', 'N/runtime', 'N/email', 'N/file', 'N/render', './NSUtilvSS2'
                   attachments: arrEmailAttachments,
                   relatedRecords: { transactionId: JSON.parse(context.values[0]).invoiceid, entityId: stCustomerId }
                });
-               log.audit(logTitle, 'Email Sent');
+               log.debug(logTitle, 'Email Sent');
             }
 
             for (var i = 0; i < arrInvoicesId.length; i++) {
@@ -222,12 +221,12 @@ define(['N/record', 'N/runtime', 'N/email', 'N/file', 'N/render', './NSUtilvSS2'
                   value: stMainFolder
                });
                customerFolder = folderRecord.save();
-               log.audit(logTitle, 'Customer Folder created');
+               log.debug(logTitle, 'Customer Folder created');
             } else {
                customerFolder = arrFolders[0].getValue({
                   name: 'internalid'
                });
-               log.audit(logTitle, 'Customer Folder internal id: ' + customerFolder);
+               log.debug(logTitle, 'Customer Folder internal id: ' + customerFolder);
             }
             return customerFolder;
          } catch (error) {

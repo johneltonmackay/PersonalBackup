@@ -127,20 +127,18 @@ define(['N/record', 'N/runtime', 'N/email', 'N/file', 'N/render', './NSUtilvSS2'
                xmlString += stInvoiceXml;
             }
 
-            if (objPrintingPreferences.printInvoice) {
-               log.debug(stMethodName, 'Printing Invoices...');
-               var st30DaysCollectionsLetterURL = runtime.getCurrentScript().getParameter('custscript_letter_30d');
-               var xmlStringWithLetter = xmlString + '<pdf src="' + encodeURI(st30DaysCollectionsLetterURL) + '" />';
-               xmlStringWithLetter = xmlStringWithLetter.replace(/&(?!amp;)/g, '&amp;').replace("&amp;nbsp;", ' ').replace("&nbsp;", ' ');
-               xmlStringWithLetter += "</pdfset>";
+            log.debug(stMethodName, 'Printing Invoices...');
+            var st30DaysCollectionsLetterURL = runtime.getCurrentScript().getParameter('custscript_letter_30d');
+            var xmlStringWithLetter = xmlString + '<pdf src="' + encodeURI(st30DaysCollectionsLetterURL) + '" />';
+            xmlStringWithLetter = xmlStringWithLetter.replace(/&(?!amp;)/g, '&amp;').replace("&amp;nbsp;", ' ').replace("&nbsp;", ' ');
+            xmlStringWithLetter += "</pdfset>";
 
-               var objInvoicePDF = render.xmlToPdf({ xmlString: xmlStringWithLetter });
-               objInvoicePDF.name = objCustomer.getText('companyname') + ' - Invoices.pdf';
-               objInvoicePDF.folder = st30DaysFolderId;
-               objInvoicePDF.save();
-               log.audit(stMethodName, 'Invoices Printed');
-            }
-
+            var objInvoicePDF = render.xmlToPdf({ xmlString: xmlStringWithLetter });
+            objInvoicePDF.name = objCustomer.getText('companyname') + ' - Invoices.pdf';
+            objInvoicePDF.folder = st30DaysFolderId;
+            objInvoicePDF.save();
+            log.debug(stMethodName, 'Invoices Printed');  
+               
 
             if (stSender && arrReceivers && stEmailSubject && stEmailContent) {
                log.debug(stMethodName, 'Emailing Invoices...');
@@ -164,7 +162,7 @@ define(['N/record', 'N/runtime', 'N/email', 'N/file', 'N/render', './NSUtilvSS2'
                   relatedRecords: { transactionId: stTransactionId, entityId: stCustomerId }
                });
 
-               log.audit(stMethodName, 'Email Sent');
+               log.debug(stMethodName, 'Email Sent');
             }
 
             for (var i = 0; i < arrTransactionsGrouped.length; i++) {
@@ -225,12 +223,12 @@ define(['N/record', 'N/runtime', 'N/email', 'N/file', 'N/render', './NSUtilvSS2'
                   value: stMainFolder
                });
                customerFolder = folderRecord.save();
-               log.audit(logTitle, 'Customer Folder Created : ' + customerFolder);
+               log.debug(logTitle, 'Customer Folder Created : ' + customerFolder);
             } else {
                customerFolder = arrFolders[0].getValue({
                   name: 'internalid'
                });
-               log.audit(logTitle, 'Customer Folder Found : ' + customerFolder);
+               log.debug(logTitle, 'Customer Folder Found : ' + customerFolder);
             }
             return customerFolder;
          } catch (error) {

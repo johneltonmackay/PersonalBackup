@@ -1480,7 +1480,7 @@ define([
 
       var intMaterialGroup = currentRecord.getCurrentSublistValue({
         sublistId: "item",
-        fieldId: lib.TRANS_LINE_FLDS.FLD_MAT_GRP,
+        fieldId: 'custcol_wnz_main_group_code',
       });
 
 
@@ -1491,7 +1491,7 @@ define([
       var flPriceFactor = parseFloat(stPriceFactor.replace(',', '.'));
 			console.log("recordType", recordType)
 			if (recordType == 'salesorder'){
-        if (intMaterialGroup == 402){
+        if (intMaterialGroup == 63) {
           var unitPrice = flBasePrice * flPriceFactor;
           console.log("MAT unitPrice", unitPrice)
         } else {
@@ -1693,7 +1693,7 @@ define([
 
       var intMaterialGroup = currentRecord.getCurrentSublistValue({
         sublistId: "item",
-        fieldId: lib.TRANS_LINE_FLDS.FLD_MAT_GRP,
+        fieldId: 'custcol_wnz_main_group_code',
       });
 
       var stPriceFactor = currentRecord.getCurrentSublistText({
@@ -1708,7 +1708,7 @@ define([
       var flPriceFactor = parseFloat(stPriceFactor.replace(',', '.'));
 
       if (recordType == 'salesorder'){
-        if (intMaterialGroup == 402){
+        if (intMaterialGroup == 63) {
           var unitPrice = discountedPrice * flPriceFactor;
           console.log("MAT unitPrice", unitPrice)
         } else {
