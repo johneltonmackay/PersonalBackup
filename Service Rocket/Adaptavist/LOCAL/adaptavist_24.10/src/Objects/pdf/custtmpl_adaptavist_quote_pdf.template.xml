@@ -16,6 +16,10 @@
                 <#assign state = "">
                 <#assign country = "">
 
+                <#assign ADAPTAVIST_UK_SERVICES_LIMITED = "25">
+                <#assign GRUPO_SALENDA_SL = "33">
+                <#assign ADAPTAVIST_INC = "13">
+
                 <#if record.custbody_adap_enduser_ispartner>
                     <#if record.custbody_adap_enduser_country?has_content>
                         <#assign country = record.custbody_adap_enduser_country>
@@ -237,7 +241,7 @@
                 <tr>
                     <td colspan="3">
                     <#if subsidiary.logo@url?length != 0>
-                        <#if record.subsidiary == "Grupo Salenda S.L.">
+                        <#if record.subsidiary.id == GRUPO_SALENDA_SL>
                             <img src="${subsidiary.logo@url}" align="right" style="width: 200px; height: 200px; dpi:300;"/>
                         <#else>
                             <img src="${subsidiary.logo@url}" align="right" style="width: 300px; height: 100px; dpi:300;" />
@@ -422,7 +426,7 @@
                 <td align="right" colspan="3"><p align="right">${item.quantity}</p></td>
                 
                 <#if lineTax == "No " + taxTotalLabel?keep_before("Total")>
-                    <#if record.subsidiary == "Adaptavist UK Services Limited">
+                    <#if record.subsidiary.id == ADAPTAVIST_UK_SERVICES_LIMITED>
                         <#assign newTaxLine = item.taxcode>
                     <#else>
                         <#assign newTaxLine = lineTax>
@@ -464,7 +468,7 @@
                     <p align="left">End Client: ${record.custbody_adap_enduser_name}</p>
                     </td>
                 </tr>
-                <#if record.subsidiary == "Adaptavist Inc">
+                <#if record.subsidiary.id == ADAPTAVIST_INC>
                 <tr style="border-bottom:1px; border-color:gray;">
                     <td colspan="24" align="left">
                     <#assign endAddr1 = record.custbodyadap_enduser_address1>
@@ -489,7 +493,7 @@
                     <p align="left">End Client: ${record.entity.altname}</p>
                     </td>
                 </tr>
-                <#if record.subsidiary == "Adaptavist Inc">
+                <#if record.subsidiary == ADAPTAVIST_INC>
                 <tr style="border-bottom:1px; border-color:gray;">
                     <td colspan="24" align="left">
                     <p align="left">End Client Address: ${record.shipaddress}</p>

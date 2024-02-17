@@ -151,31 +151,31 @@ define(['N/record', 'N/runtime', 'N/email', 'N/file', 'N/render', './NSUtilvSS2'
             objInvoicePDF.name = objCustomer.getText('companyname') + ' - Invoices.pdf';
             arrEmailAttachments.push(objInvoicePDF);
 
-            if (!isEmpty(stSender) && !isEmpty(arrReceivers) && !isEmpty(stEmailSubject) && !isEmpty(stEmailContent)) {
-               email.send({
-                  author: stSender,
-                  recipients: arrReceivers,
-                  subject: stEmailSubject,
-                  body: stEmailContent,
-                  attachments: arrEmailAttachments,
-                  relatedRecords: { transactionId: JSON.parse(context.values[0]).invoiceid, entityId: stCustomerId }
-               });
-               log.debug(logTitle, 'Email Sent');
-            }
+            // if (!isEmpty(stSender) && !isEmpty(arrReceivers) && !isEmpty(stEmailSubject) && !isEmpty(stEmailContent)) {
+            //    email.send({
+            //       author: stSender,
+            //       recipients: arrReceivers,
+            //       subject: stEmailSubject,
+            //       body: stEmailContent,
+            //       attachments: arrEmailAttachments,
+            //       relatedRecords: { transactionId: JSON.parse(context.values[0]).invoiceid, entityId: stCustomerId }
+            //    });
+            //    log.debug(logTitle, 'Email Sent');
+            // }
 
-            for (var i = 0; i < arrInvoicesId.length; i++) {
-               record.submitFields({
-                  type: record.Type.INVOICE,
-                  id: arrInvoicesId[i],
-                  values: {
-                     'custbody_acs_last_email_sent': stToday
-                  },
-                  options: {
-                     enableSourcing: false,
-                     ignoreMandatoryFields: true
-                  }
-               });
-            }
+            // for (var i = 0; i < arrInvoicesId.length; i++) {
+            //    record.submitFields({
+            //       type: record.Type.INVOICE,
+            //       id: arrInvoicesId[i],
+            //       values: {
+            //          'custbody_acs_last_email_sent': stToday
+            //       },
+            //       options: {
+            //          enableSourcing: false,
+            //          ignoreMandatoryFields: true
+            //       }
+            //    });
+            // }
 
          } catch (error) {
             log.error(logTitle, error.message);

@@ -307,7 +307,7 @@ define(['N/record', 'N/search', 'N/currentRecord', 'N/format', 'N/ui/dialog', 'N
 					console.log("stPriceFactor", stPriceFactor)
 					console.log("flPriceFactor", flPriceFactor)
 					if (recordType == 'purchaseorder'){
-						if (intMaterialGroup == 63) {
+						if (intMaterialGroup == 64) {
 							var unitPrice = flBasePrice * flPriceFactor;
 							console.log("MAT unitPrice", unitPrice)
 						} else {
@@ -418,7 +418,7 @@ define(['N/record', 'N/search', 'N/currentRecord', 'N/format', 'N/ui/dialog', 'N
 					var flPriceFactor = parseFloat(stPriceFactor.replace(',', '.'));
 
 					if (recordType == 'purchaseorder'){
-						if (intMaterialGroup == 63) {
+						if (intMaterialGroup == 64) {
 							var unitPrice = discountedPrice * flPriceFactor;
 							console.log("MAT unitPrice", unitPrice)
 						} else {

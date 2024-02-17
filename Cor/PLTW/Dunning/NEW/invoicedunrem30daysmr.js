@@ -140,45 +140,45 @@ define(['N/record', 'N/runtime', 'N/email', 'N/file', 'N/render', './NSUtilvSS2'
             log.debug(stMethodName, 'Invoices Printed');  
                
 
-            if (stSender && arrReceivers && stEmailSubject && stEmailContent) {
-               log.debug(stMethodName, 'Emailing Invoices...');
-               xmlString = xmlString.replace(/&(?!amp;)/g, '&amp;').replace("&amp;nbsp;", ' ').replace("&nbsp;", ' ');
-               xmlString += "</pdfset>";
-               var objInvoicePDF = render.xmlToPdf({ xmlString: xmlString });
-               objInvoicePDF.name = objCustomer.getText('companyname') + ' - Invoices.pdf';
-               arrEmailAttachments = [objInvoicePDF];
+            // if (stSender && arrReceivers && stEmailSubject && stEmailContent) {
+            //    log.debug(stMethodName, 'Emailing Invoices...');
+            //    xmlString = xmlString.replace(/&(?!amp;)/g, '&amp;').replace("&amp;nbsp;", ' ').replace("&nbsp;", ' ');
+            //    xmlString += "</pdfset>";
+            //    var objInvoicePDF = render.xmlToPdf({ xmlString: xmlString });
+            //    objInvoicePDF.name = objCustomer.getText('companyname') + ' - Invoices.pdf';
+            //    arrEmailAttachments = [objInvoicePDF];
 
-               var stTransactionId;
-               if (arrTransactionsGrouped.length == 1) {
-                  stTransactionId = JSON.parse(arrTransactionsGrouped[0]).invoiceid;
-               }
-               log.debug(stMethodName, 'Sending email... Related records : ' + stTransactionId + ' Entity : ' + stCustomerId + ' Recipients : ' + JSON.stringify(arrReceivers));
-               email.send({
-                  author: stSender,
-                  recipients: arrReceivers,
-                  subject: stEmailSubject,
-                  body: stEmailContent,
-                  attachments: arrEmailAttachments,
-                  relatedRecords: { transactionId: stTransactionId, entityId: stCustomerId }
-               });
+            //    var stTransactionId;
+            //    if (arrTransactionsGrouped.length == 1) {
+            //       stTransactionId = JSON.parse(arrTransactionsGrouped[0]).invoiceid;
+            //    }
+               // log.debug(stMethodName, 'Sending email... Related records : ' + stTransactionId + ' Entity : ' + stCustomerId + ' Recipients : ' + JSON.stringify(arrReceivers));
+               // email.send({
+               //    author: stSender,
+               //    recipients: arrReceivers,
+               //    subject: stEmailSubject,
+               //    body: stEmailContent,
+               //    attachments: arrEmailAttachments,
+               //    relatedRecords: { transactionId: stTransactionId, entityId: stCustomerId }
+               // });
 
-               log.debug(stMethodName, 'Email Sent');
-            }
+               // log.debug(stMethodName, 'Email Sent');
+            // }
 
-            for (var i = 0; i < arrTransactionsGrouped.length; i++) {
-               var objInvoice = JSON.parse(arrTransactionsGrouped[i]);
-               record.submitFields({
-                  type: record.Type.INVOICE,
-                  id: objInvoice.invoiceid,
-                  values: {
-                     'custbody_acs_last_email_sent': new Date()
-                  },
-                  options: {
-                     enableSourcing: false,
-                     ignoreMandatoryFields: true
-                  }
-               });
-            }
+            // for (var i = 0; i < arrTransactionsGrouped.length; i++) {
+            //    var objInvoice = JSON.parse(arrTransactionsGrouped[i]);
+            //    record.submitFields({
+            //       type: record.Type.INVOICE,
+            //       id: objInvoice.invoiceid,
+            //       values: {
+            //          'custbody_acs_last_email_sent': new Date()
+            //       },
+            //       options: {
+            //          enableSourcing: false,
+            //          ignoreMandatoryFields: true
+            //       }
+            //    });
+            // }
          } catch (error) {
             log.error(stMethodName, error);
          }

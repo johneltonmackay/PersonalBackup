@@ -90,6 +90,14 @@ define(dependencies, function (record, runtime, xmlMod, _lev,search,format) {
                   values: inchTiresValue
               })
             )
+          } else {
+            markupSearch.filters.push(
+              search.createFilter({
+                  name: 'custrecord_anwb_inch_tires',
+                  operator: 'anyof',
+                  values: '@NONE@'
+              })
+            )
           }
           var searchResultCount = markupSearch.runPaged().count;
           log.debug("markupSearch result count", searchResultCount);

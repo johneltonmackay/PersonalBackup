@@ -1490,7 +1490,9 @@ define([
 
       var flPriceFactor = parseFloat(stPriceFactor.replace(',', '.'));
 			console.log("recordType", recordType)
-			if (recordType == 'salesorder'){
+      console.log("flPriceFactor", flPriceFactor)
+      console.log("flBasePrice", flBasePrice)
+			if (recordType == 'salesorder' || recordType == 'estimate'){
         if (intMaterialGroup == 63) {
           var unitPrice = flBasePrice * flPriceFactor;
           console.log("MAT unitPrice", unitPrice)
@@ -1511,6 +1513,7 @@ define([
         lib.TRANS_LINE_FLDS.FLD_WENTZEL_RATE,
         flBasePrice
       );
+      console.log("unitPrice", unitPrice)
       currentRecord.setCurrentSublistValue("item", "rate", unitPrice);
       currentRecord.setCurrentSublistValue(
         "item",
@@ -1707,7 +1710,7 @@ define([
 
       var flPriceFactor = parseFloat(stPriceFactor.replace(',', '.'));
 
-      if (recordType == 'salesorder'){
+      if (recordType == 'salesorder' || recordType == 'estimate'){
         if (intMaterialGroup == 63) {
           var unitPrice = discountedPrice * flPriceFactor;
           console.log("MAT unitPrice", unitPrice)

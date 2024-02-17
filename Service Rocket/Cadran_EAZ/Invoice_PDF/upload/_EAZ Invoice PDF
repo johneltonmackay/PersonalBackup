@@ -1,0 +1,300 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
+
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+                   <tr>
+                <td id="logo" style="line-height: 17px;">
+                    <img src="http://5739994.shop.netsuite.com/core/media/media.nl?id=10265&amp;c=5739994&amp;h=4kPRz6EiPaKYlQ22h020POnd4_rpfUtzB6MvSy8lZEvK1A-T" style="width: 670px; height: 50px; margin-left: -75px;"/>
+                    <br/>
+                </td>
+                </tr>
+                <tr>
+                    <td id="logo" align="left"><img src="${subsidiary.logo@Url}" style="width: 120px; height: 105px"/></td>
+                </tr>
+                <tr> </tr>
+                <tr>
+                    <td align="left" height="100px" style="line-height: 15px;">${record.shipaddress}</td>
+                </tr>
+            </table>
+        </macro>
+        
+        <macro id="nlfooter">
+            <img src="http://5739994.shop.netsuite.com/core/media/media.nl?id=10267&amp;c=5739994&amp;h=Kl-JH_2_rFvEaKa_dSWIbPNODfQ7RLuo2wO_0sseaYbqcsJH" style="width: 50px; height: 50px; align: center;"/>
+            
+            <p class="invoice-text" style="line-height: 17px;">${subsidiary.name} &#x2022; ${record.subsidiary.url} &#x2022; ${subsidiary.mainaddress.addr1}, ${subsidiary.mainaddress.city} &#x2022; 0598 372383
+            info.eazwind.com &#x2022; IBAN: ${subsidiary.custrecord_eaz_iban} &#x2022; KVK: ${subsidiary.custrecord_alf_company_reg_num} &#x2022; BTW: ${subsidiary.federalidnumber}</p>
+        </macro>
+    </macrolist>
+
+    <style type="text/css">* {
+		<#if .locale == "zh_CN">
+			font-family: NotoSans, NotoSansCJKsc, sans-serif;
+		<#elseif .locale == "zh_TW">
+			font-family: NotoSans, NotoSansCJKtc, sans-serif;
+		<#elseif .locale == "ja_JP">
+			font-family: NotoSans, NotoSansCJKjp, sans-serif;
+		<#elseif .locale == "ko_KR">
+			font-family: NotoSans, NotoSansCJKkr, sans-serif;
+		<#elseif .locale == "th_TH">
+			font-family: NotoSans, NotoSansThai, sans-serif;
+		<#else>
+			font-family: NotoSans, sans-serif;
+		</#if>
+		}
+        a {
+            text-decoration: none;
+        }
+		table {
+			font-size: 10.5pt;
+			table-layout: fixed;
+		}
+
+        th {
+            font-weight: bold;
+            background-color: white;
+            color: #333333;
+            border-bottom: 2px solid black;
+            padding: 0 0 15px 0;
+        }
+
+        td {
+            padding: 7px 0px;
+        }
+
+		td p { align:left }
+
+        .itemtable td {
+            padding: 10px 0;
+            border-bottom: 1px solid black;
+        }
+
+        .item-totals td {
+            padding: 5px;
+        }
+
+        .item-totals .item-totals-min {
+            border-bottom: 1px solid black;
+			font-size: 9.5pt;
+        }
+
+        .item-totals .item-totals-max {
+			border-bottom: 1px dotted black;
+            font-size: 9.5pt;
+        }
+
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+
+        .td-border {
+            border: 1px solid black;
+            line-height: 20px;
+        }
+
+        .invoice-text {
+            font-size: 10.5pt;
+            padding: 5px 0;
+            text-align: center;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="26%" footer="nlfooter" footer-height="50pt" padding="0.25in 0.8in 0.85in 0.8in" size="A4">
+    <#if record.custbody_print_pdf_object?length gt 10>
+        <#if record.custbody_print_pdf_object !="Lorem ipsum dolor sit amet consectetuer ac orci sociis ornare laoreet.">
+            <#if record.custbody_print_pdf_object?has_content>
+                <#assign customrecord = record.custbody_print_pdf_object?eval>
+            </#if>
+        </#if>
+    </#if>
+
+    <table style="width: 100%;">
+      <#if record.entity.custentity_rfi_language_id?contains("nl_NL")>    <tr><td colspan="4" align="center" style="padding-bottom: 10px;"><b>Factuur</b></td></tr></#if>
+         <#if record.entity.custentity_rfi_language_id?contains("de_DE")>    <tr><td colspan="4" align="center" style="padding-bottom: 10px;"><b>Rechnung</b></td></tr></#if>
+        <tr>
+            <td><b>${record.tranid@label}</b></td>
+            <td style = "padding-right: 30px;">${record.tranid}</td>
+            <td style = "padding-left: 30px;"><b>${record.trandate@label}</b></td>
+            <td>${record.trandate}</td>
+        </tr>
+        <tr>
+           <#if record.entity.custentity_rfi_language_id?contains("nl_NL")>  <td style = "padding-right: 30px;"><b>Debiteurnummer</b></td></#if>
+         <#if record.entity.custentity_rfi_language_id?contains("de_DE")>  <td style = "padding-right: 30px;"><b>Kundenummer</b></td></#if>
+            <td style = "padding-right: 30px;">${record.entity.entityid}</td>
+            <td style = "padding-left: 30px;"><b>${record.duedate@label}</b></td>
+            <td>${record.duedate}</td>
+        </tr>
+       <tr>
+      <td style = "padding-right: 30px;"></td>
+            <td style = "padding-right: 30px;"></td>
+            <td style = "padding-left: 30px;"></td>
+            <td></td>
+        </tr>
+    </table>
+  
+   <#if record.entity.custentity_rfi_language_id?contains("nl_NL")><p class="invoice-text">Hierbij de factuur voor de termijnbetaling ${record.custbody_eaz_termijn}, conform offerte.</p></#if>
+   <#if record.entity.custentity_rfi_language_id?contains("de_DE")><p class="invoice-text">Hier ist die Rechnung für die Ratenzahlung ${record.custbody_eaz_termijn}, gemäß Angebot</p></#if>
+
+    <table class="itemtable" style="width: 100%; margin: 20px 0;">
+    <#list record.item as item>
+        <#if item_index==0>
+        <thead>
+            <tr>
+            <th align="left" colspan="3">${item.quantity@label}</th>
+            <th align="left" colspan="4">${item.description@label}</th>
+            <th align="right" colspan="4">${item.rate@label}</th>
+            <th align="right" colspan="3">${item.taxrate1@label}</th>
+            <th align="right" colspan="4">${item.amount@label}</th>
+            </tr>
+        </thead>
+        </#if>
+    </#list>
+    <#if customrecord?has_content>
+        <#list customrecord as item>
+        <#if item?has_content>
+            <#if record.custbody_rfi_currency_symbol?has_content>
+                <#assign currencyRecord = record.custbody_rfi_currency_symbol>
+            </#if>
+            <tr>
+                <#if item.qty?has_content>
+                    <td align="left" colspan="3">${item.qty}</td>
+                <#else>
+                    <td align="left" colspan="3"> </td>
+                </#if>
+                <#if item.description?has_content> <td align="left" colspan="4">${item.description}</td></#if>
+                <#if !item.description?has_content> <td align="left" colspan="4">${item.item}</td></#if>
+                <#setting locale="de_DE">
+                    <#if item.rate?has_content>
+                        <td align="right" colspan="4">
+                            ${currencyRecord}
+                            ${item.rate?string.currency?keep_before(currencyRecord)}
+                        </td>
+                    <#else>
+                        <td align="right" colspan="4">
+                        ${item.rate}
+                        </td>
+                    </#if>
+                <td align="right" colspan="3"><#if item.taxrate1?has_content>${item.taxrate1}%</#if></td>
+                <td align="right" colspan="4">
+                    <#if item.amount?has_content>
+                        ${currencyRecord}
+                        ${item.amount?string.currency?keep_before(currencyRecord)}
+                    </#if>
+                </td>
+            </tr>
+        </#if>    
+        </#list>
+    </#if>
+    </table>
+    <!--start cadran edit !-->
+
+
+
+
+<table class="itemtable" align="right" style="page-break-inside:avoid;">
+
+<!-- start subtotals -->
+
+<tr id="first-subtotal-row">
+
+    <#if record.entity.custentity_rfi_language_id?contains("nl_NL")><td colspan="10" class="totals"><b>Totaal excl. BTW</b></td></#if>
+    <#if record.entity.custentity_rfi_language_id?contains("de_DE")><td colspan="10" class="totals"><b>Gesamt exkl. MwSt</b></td></#if>
+<td class="totals align-right" colspan="5"></td>
+
+<td class="totals align-right" align="right"><b>  ${record.subtotal}</b></td>
+
+</tr>
+
+<!-- Begin custom record type VAT Split feature !-->
+
+<#if record.custbody_rfi_tax_split_object?length gt 10>
+
+<#if record.custbody_rfi_tax_split_object !="Lorem ipsum dolor sit amet consectetuer ac orci sociis ornare laoreet.">
+
+<#assign customrecord = record.custbody_rfi_tax_split_object?eval/>
+
+<#if customrecord?has_content>
+
+<#list customrecord as vat_line>
+
+<tr>
+
+<td colspan="10" class="totals">${record.taxtotal@label} ${vat_line.taxRate}%</td>
+
+<td class="totals" align="right" colspan="5"></td>
+
+<td class="totals align-right" align="right">${record.custbody_rfi_currency_symbol} ${vat_line.taxAmount}</td>
+
+</tr>
+
+</#list>
+
+</#if>
+
+<#else>
+
+<tr>
+
+<td colspan="10" class="totals">${record.taxtotal@label}</td>
+
+<td class="totals align-right" colspan="5"></td>
+
+<td class="totals align-right" align="right">  ${record.taxtotal}</td>
+
+</tr>
+
+</#if>
+
+  </#if>
+
+<!-- End custom record type VAT Split feature !-->
+
+  
+<tr>
+
+  <#if record.entity.custentity_rfi_language_id?contains("nl_NL")><td colspan="10" class="totals"><b>Totaal incl. BTW</b></td></#if>
+  <#if record.entity.custentity_rfi_language_id?contains("de_DE")><td colspan="10" class="totals"><b>Gesamt inkl. MwSt</b></td></#if>
+
+<td class="totals align-right" colspan="5"></td>
+
+  <td class="totals align-right" align="right"><b>  ${record.total}</b></td>
+
+</tr>
+</table>
+  
+  
+
+<!-- end subtotals -->
+
+<!-- End Cadran edit !-->
+  
+    <br />
+
+
+  <#if record.entity.custentity_rfi_language_id?contains("nl_NL")><p class="invoice-text">Gelieve het bedrag over te maken op onderstaand rekeningnummer.</p> </#if>
+    <#if record.entity.custentity_rfi_language_id?contains("de_DE")><p class="invoice-text">Bitte überweisen Sie den Betrag auf die unten angegebene Kontonummer</p> </#if>
+
+</body>
+</pdf>

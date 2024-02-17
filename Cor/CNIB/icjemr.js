@@ -105,6 +105,43 @@
                             fieldId: 'custbody_nsts_vb',
                             value: recId ? parseInt(recId) : null,
                         });
+                        
+                        let originalArray = arrICJELineData
+                          
+                        // Create an object to store consolidated data
+                        let consolidatedData = {};
+                          
+                        // Iterate through the original array
+                        originalArray.forEach((item) => {
+                            let key = JSON.stringify({
+                                lineData: {
+                                    accountId: item.lineData.accountId,
+                                    isDebit: item.lineData.isDebit,
+                                    entity: item.lineData.entity,
+                                    disEntity: item.lineData.disEntity
+                                },
+                                fixObj: item.fixObj,
+                                segments: item.segments,
+                                entityName: item.entityName,
+                            });
+                          
+                            if (consolidatedData[key]) {
+                              // If the key already exists, update the values accordingly
+                              consolidatedData[key].lineData.amount += item.lineData.amount;
+                            } else {
+                              // If the key doesn't exist, add a new entry with the current item
+                              consolidatedData[key] = { ...item };
+                            }
+                        });
+                          
+                        // Convert the object back to an array
+                        let consolidatedArray = Object.values(consolidatedData);
+                        arrICJELineData = consolidatedArray;
+                          
+                        log.debug('consolidatedArray', consolidatedArray);
+                        log.debug('New arrICJELineData', arrICJELineData);
+                          
+
                         for (let x=0; x < arrICJELineData.length; x++){
                             counter = x
                             log.debug('arrICJELineData', arrICJELineData[x])
@@ -740,6 +777,7 @@
                         log.error('searchRecord', err.message);
                     }
                 } 
+
                 return {getInputData, map, reduce, summarize}
 
             });
