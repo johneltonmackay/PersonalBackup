@@ -76,6 +76,21 @@ define([],
                         label: "DATE",
                         type : 'text',
                     },
+                    FROM_OUTLET: {
+                        id: "custpage_from_location",
+                        label: "From Outlet",
+                        type: "text",
+                    },
+                    TO_OUTLET: {
+                        id: "custpage_to_location",
+                        label: "To Outlet",
+                        type: "text",
+                    },
+                    RECORD_TYPE: {
+                        id: "custpage_recordtype",
+                        label: "Transaction Type",
+                        type: "text",
+                    },
                 },
                 selectOptions: {
                     EMPTY: {

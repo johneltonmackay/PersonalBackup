@@ -1,9 +1,9 @@
 /**
  * @NApiVersion 2.1
  */
-define(["N/ui/serverWidget", "N/search", "N/query", "N/file", "N/record", "../Library/slmapping.js", 'N/runtime'],
+define(["N/ui/serverWidget", "N/search", "N/query", "N/file", "N/record", "../Library/slmapping.js", 'N/runtime', 'N/url', '../Library/globalcs.js', 'N/ui/message'],
 
-    (serverWidget, search, query, file, record, slMapping, runtime) => {
+    (serverWidget, search, query, file, record, slMapping, runtime, url, globalcs, message) => {
 
         //#constants
         const FORM = {};
@@ -32,6 +32,17 @@ define(["N/ui/serverWidget", "N/search", "N/query", "N/file", "N/record", "../Li
                 return objForm;
             } catch (err) {
                 log.error('ERROR_BUILD_FORM:', err.message)
+            }
+        }
+
+        ACTIONS.RunMR = (options) => {
+            try {
+                log.debug("UNDER DEVELOPMENT");
+                log.debug("options", options);
+                var objForm = options.form;
+                objForm.clientScriptModulePath = slMapping.SUITELET.form.CS_PATH;
+            } catch (err) {
+                log.error('ERROR_RUN_MR:', err.message)
             }
         }
 
@@ -93,11 +104,28 @@ define(["N/ui/serverWidget", "N/search", "N/query", "N/file", "N/record", "../Li
                     arrSearchResults.forEach((data, index) => {
                         for (const key in data) {
                             let value = data[key];
-                            sublist.setSublistValue({
-                                id: key,
-                                line: index,
-                                value: value,
-                            });
+                            if (value){
+                                if (key == 'custpage_view'){
+                                    var strItemFulfilUrl = url.resolveRecord({
+                                        recordType: data.custpage_recordtype,
+                                        recordId: value
+                                    });
+                                    let recLink = `<a href='${strItemFulfilUrl}' target="_blank" rel="noopener noreferrer">${value}</a>`
+                                    sublist.setSublistValue({
+                                        id: key,
+                                        line: index,
+                                        value: recLink,
+                                    });
+                                } else {
+                                    sublist.setSublistValue({
+                                        id: key,
+                                        line: index,
+                                        value: value,
+                                    });
+                                }
+                                
+                            }
+ 
                         }
                     });
                 }
@@ -123,58 +151,56 @@ define(["N/ui/serverWidget", "N/search", "N/query", "N/file", "N/record", "../Li
                         strTransType = 'TrnfrOrd'
                     }
                 }
-                log.debug('runSearch strTransType', strTransType);
+
+                let stFromDate = arrayData[1].custpage_from_date
+                let stToDate = arrayData[2].custpage_to_date
+                let stFromLocation = arrayData[3].custpage_from_location
+                let stToLocation = arrayData[4].custpage_to_location
+                log.debug('strTransType', strTransType)
+                log.debug('stFromDate', stFromDate)
+                log.debug('stToDate', stToDate)
+                log.debug('stFromLocation', stFromLocation)
+                log.debug('stToLocation', stToLocation)
+
+                let filters = [
+                    ['type', 'anyof', strTransType],
+                    'AND',
+                    ['mainline', 'is', 'T'],
+                    'AND',
+                    ['custbody_conso', 'is', 'F'],
+                    'AND',
+                    ['trandate', 'within', stFromDate, stToDate],
+                ];
+
+                if (strTransType == "PurchReq") {
+                    filters.push('AND');
+                    filters.push(['status', 'noneof', 'PurchReq:A', 'PurchReq:C', 'PurchReq:E', 'PurchReq:G', 'PurchReq:H', 'PurchReq:R']);
+                    filters.push('AND');
+                    filters.push(['formulatext: {location}', 'is', stFromLocation]);
+                } else if (strTransType == "TrnfrOrd"){
+                    filters.push('AND');
+                    filters.push(['status', 'noneof', 'TrnfrOrd:H', 'TrnfrOrd:A']);
+                    filters.push('AND');
+                    filters.push(['formulatext: {location}', 'is', stFromLocation]);
+                    filters.push('AND');
+                    filters.push(['formulatext: {transferlocation}', 'is', stToLocation]);
+                }
+
+                log.debug('filters', filters)
+
                 let objSavedSearch = search.create({
                     type: 'transaction',
-                    filters: [
-                        ['type', 'anyof', strTransType],
-                        'AND',
-                        ['mainline', 'is', 'T'],
-                        'AND',
-                        ['custbody_conso', 'is', 'F'],
-                      ],
+                    filters: filters,
                     columns: [
                         search.createColumn({ name: 'internalid', label: 'custpage_view'}),
                         search.createColumn({ name: 'tranid', label: 'custpage_document_no'}),
                         search.createColumn({ name: 'trandate', label: 'custpage_date'}),
+                        search.createColumn({ name: 'formulatext', formula: '{location}', label: 'custpage_from_location'}),
+                        search.createColumn({ name: 'formulatext', formula: '{transferlocation}', label: 'custpage_to_location'}),
+                        search.createColumn({ name: 'recordtype', label: 'custpage_recordtype'}),
                     ],
 
                 });
-
-                if (arrayData.length > 0){
-                    let stFromDate = arrayData[1].custpage_from_date
-                    let stToDate = arrayData[2].custpage_to_date
-                    let stFromLocation = arrayData[3].custpage_from_location
-                    let stToLocation = arrayData[4].custpage_to_location
-                    log.debug('stFromDate', stFromDate)
-                    log.debug('stToDate', stToDate)
-                    if (strTransType == 'PR'){
-                        objSavedSearch.filters.push(
-                            search.createFilter({
-                                name:'status',
-                                operator:'noneof',
-                                values: ['PurchReq:A', 'PurchReq:C', 'PurchReq:E', 'PurchReq:G', 'PurchReq:H', 'PurchReq:R'],
-                            })
-                        )
-                    } else if (strTransType == 'SR'){
-                        objSavedSearch.filters.push(
-                            search.createFilter({
-                                name:'status',
-                                operator:'noneof',
-                                values: ['TrnfrOrd:H', 'TrnfrOrd:A'],
-                            })
-                        )
-                    }
-                    if (stFromDate && stToDate){
-                        objSavedSearch.filters.push(
-                            search.createFilter({
-                                name:'trandate',
-                                operator:'within',
-                                values: [stFromDate, stToDate],
-                            })
-                        )
-                    }
-                }
 
                 let searchResultCount = objSavedSearch.runPaged().count;
             
@@ -197,8 +223,7 @@ define(["N/ui/serverWidget", "N/search", "N/query", "N/file", "N/record", "../Li
                         }   
                     }
                 }
-
-            // console.log('runSearch arrSearchResults', JSON.stringify(arrSearchResults));
+            log.debug(`runSearch arrSearchResults ${Object.keys(arrSearchResults).length}`, arrSearchResults);
             return arrSearchResults;
 
             } catch (err) {

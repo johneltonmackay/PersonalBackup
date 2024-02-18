@@ -18,27 +18,35 @@ define(["N/url", "N/redirect", "../Library/sladhoclibrary.js", "../Library/slmap
         };
 
         const onRequest = (scriptContext) => {
+            let strTransType = scriptContext.request.parameters['custpage_trans_type'];
+            let strFromDate = scriptContext.request.parameters['custpage_from_date'];
+            let strToDate = scriptContext.request.parameters['custpage_to_date'];
+            let intFromLocation = scriptContext.request.parameters['custpage_from_location'];
+            let intToLocation = scriptContext.request.parameters['custpage_to_location'];
+            let objPostParam = {
+                transtype: strTransType,
+                fromdate: strFromDate,
+                todate: strToDate,
+                fromlocation: intFromLocation,
+                tolocation: intToLocation,
+            }
             try {
                 if (scriptContext.request.method == CONTEXT_METHOD.POST) {
-                    log.debug('POST scriptContext.request', scriptContext.request.parameters);
-                    let strTransType = scriptContext.request.parameters['custpage_trans_type'];
-                    let strFromDate = scriptContext.request.parameters['custpage_from_date'];
-                    let strToDate = scriptContext.request.parameters['custpage_to_date'];
-                    let intFromLocation = scriptContext.request.parameters['custpage_from_location'];
-                    let intToLocation = scriptContext.request.parameters['custpage_to_location'];
-                    let objPostParam = {
-                        transtype: strTransType,
-                        fromdate: strFromDate,
-                        todate: strToDate,
-                        fromlocation: intFromLocation,
-                        tolocation: intToLocation,
-                    }
+                    let scriptObj = scriptContext.request.parameters
+                    log.debug('POST scriptObj', scriptObj);
                     log.debug('POST objPostParam', objPostParam);
                     redirect.toSuitelet({
                         scriptId: slMapping.SUITELET.scriptid,
                         deploymentId: slMapping.SUITELET.deploymentid,
-                        // parameters: objPostParam
+                        parameters: {
+                            postData: JSON.stringify(objPostParam)
+                        }
                     });
+                    if (scriptObj.submitted ="T"){
+                        slAdhoclibrary.ACTIONS.RunMR({
+                            options: scriptContext
+                        });
+                    }
                 } else {
                     log.debug('GET scriptContext.request', scriptContext.request.parameters);
                     var objForm = slAdhoclibrary.FORM.buildForm({
