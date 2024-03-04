@@ -50,17 +50,6 @@ define(['N/ui/message', 'N/search', 'N/currentRecord', 'N/format', '../Library/s
                         }
                     });
                 }
-                let postParam = urlParams.get('postData');
-                let arrjsonPostData = JSON.parse(postParam);
-                if (arrjsonPostData){
-                    let objMessage = message.create({
-                        type: message.Type.WARNING,
-                        ...globalcs.NOTIFICATION.RUNMR
-                    });
-                    objMessage.show({
-                        duration: 5000 // will disappear after 5s
-                    });
-                }
 
             } catch (error) {
                 console.log('Error: pageInit', error.message);
@@ -127,6 +116,30 @@ define(['N/ui/message', 'N/search', 'N/currentRecord', 'N/format', '../Library/s
                 }
             } catch (error) {
                 console.log('Error: saveRecord', error.message)
+            }
+        }
+
+        function viewResults(scriptContext) {
+            let currRec = currentRecord.get()
+            console.log('viewResults currRec', currRec)
+            try {
+                let strTransKey = currRec.getValue({
+                    fieldId: 'custpage_trans_key'
+                });
+                console.log('viewResults strTransKey', strTransKey)
+                var sURL = url.resolveScript({
+                    scriptId : slMapping.SUITELET.scriptid,
+                    deploymentId : slMapping.SUITELET.deploymentid,
+                    returnExternalUrl : false,
+                    params : {
+                        transkey: JSON.stringify(strTransKey)
+                    }
+                });
+            
+                window.onbeforeunload = null;
+                window.location = sURL;
+            } catch (error) {
+                console.log('Error: viewResults', error.message)
             }
         }
 
@@ -240,6 +253,7 @@ define(['N/ui/message', 'N/search', 'N/currentRecord', 'N/format', '../Library/s
             saveRecord: saveRecord,
             searchItems: searchItems,
             refreshPage: refreshPage,
+            viewResults: viewResults
         };
 
     });

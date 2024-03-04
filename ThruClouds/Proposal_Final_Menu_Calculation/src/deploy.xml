@@ -1,0 +1,31 @@
+<<<<<<< HEAD
+<deploy>
+    <configuration>
+        <path>~/AccountConfiguration/*</path>
+    </configuration>
+    <files>
+        <path>~/FileCabinet/*</path>
+    </files>
+    <objects>
+        <path>~/Objects/*</path>
+    </objects>
+    <translationimports>
+        <path>~/Translations/*</path>
+    </translationimports>
+</deploy>
+=======
+<deploy>
+    <configuration>
+        <path>~/AccountConfiguration/*</path>
+    </configuration>
+    <files>
+        <path>~/FileCabinet/*</path>
+    </files>
+    <objects>
+        <path>~/Objects/*</path>
+    </objects>
+    <translationimports>
+        <path>~/Translations/*</path>
+    </translationimports>
+</deploy>
+>>>>>>> 30cd781033a7dd53058a31b8bf2f43b9971eef48

@@ -9,7 +9,7 @@ define([],
             scriptid: 'customscript_adhoc_consolidation_sl',
             deploymentid: 'customdeploy_adhoc_consolidation_sl',
             form: {
-                title: "ADHOC CONSOLIDATION",
+                title: "CONSOLIDATE PR/SR",
                 fields: {
                     TRANSACTION_TYPE: {
                         id: "custpage_trans_type",
