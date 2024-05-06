@@ -12,11 +12,11 @@ define(['N/record', 'N/search'],
             let arrTransaction = [];
             try {
                 let objTransactionSearch = search.create({
-                    type: 'itemfulfillment',
+                    type: 'transaction',
                     filters: [
                         ['item', 'anyof', '4402', '4414', '4412', '4415'],
                         'AND',
-                        ['type', 'anyof', 'ItemShip'],
+                        ['type', 'anyof', 'CustInvc', 'CustCred', 'SalesOrd'],
                         'AND',
                         ['mainline', 'is', 'F'],
                         'AND',
@@ -25,16 +25,15 @@ define(['N/record', 'N/search'],
                         ['custcol_cseg_npo_program', 'anyof', '24'],
                         'AND',
                         ['trandate', 'within', '1/1/2024'],
-                        'AND',
-                        ['createdfrom', 'noneof', '@NONE@'],
                         // 'AND',
-                        // ['internalid', 'anyof', '12525583', '12526424', '12529315', '12561608'],
+                        // ['internalid', 'anyof', '12895577', '12895578', '12895589', '12895593'],
                       ],
                     columns: [
                         search.createColumn({name: 'internalid'}),
                         search.createColumn({ name: 'internalid', join: 'createdfrom' }),
                         search.createColumn({ name: 'recordtype' }),
-                        search.createColumn({ name: 'recordtype', join: 'createdfrom' })
+                        search.createColumn({ name: 'recordtype', join: 'createdfrom' }),
+                        search.createColumn({ name: 'lineuniquekey' })
                     ],
 
                 });
@@ -46,21 +45,25 @@ define(['N/record', 'N/search'],
                         var pageData = currentPage.data;
                         if (pageData.length > 0) {
                             for (var pageResultIndex = 0; pageResultIndex < pageData.length; pageResultIndex++) {
-                                var recIFId = pageData[pageResultIndex].getValue({name: 'internalid'});
+                                var recId = pageData[pageResultIndex].getValue({name: 'internalid'});
                                 var createdFromId = pageData[pageResultIndex].getValue({ name: 'internalid', join: 'createdfrom' });
-                                var recIFType = pageData[pageResultIndex].getValue({ name: 'recordtype'});
+                                var recType = pageData[pageResultIndex].getValue({ name: 'recordtype'});
                                 var recCreatedFromType = pageData[pageResultIndex].getValue({ name: 'recordtype', join: 'createdfrom' });
+                                var recLineUniqueKey = pageData[pageResultIndex].getValue({ name: 'lineuniquekey' });
                                 
                                 // Check if recIFId already exists in arrTransaction
-                                var existingIndex = arrTransaction.findIndex(item => item.recIFId === recIFId);
+                                var existingIndex = arrTransaction.findIndex(item => item.recId === recId);
                                 if (existingIndex == -1) {
                                     // If doesn't exist, create a new record
                                     arrTransaction.push({
-                                        recIFId: recIFId,
-                                        recIFType: recIFType,
+                                        recId: recId,
+                                        recType: recType,
                                         createdFromId: createdFromId,
                                         recCreatedFromType: recCreatedFromType,
+                                        recLineUniqueKey: [recLineUniqueKey]
                                     });
+                                } else {
+                                    arrTransaction[existingIndex].recLineUniqueKey.push(recLineUniqueKey);
                                 }
                             }
                         }
@@ -75,21 +78,25 @@ define(['N/record', 'N/search'],
 
         const map = (mapContext) => {
             try {
-                // log.debug('map : mapContext', mapContext)
+                log.debug('map : mapContext', mapContext)
                 let objMapValue = JSON.parse(mapContext.value)   
                 log.debug('map : objMapValue', objMapValue)
-                
-                var recordId = record.submitFields({
-                    type: objMapValue.recCreatedFromType,
-                    id: objMapValue.createdFromId,
-                    values: {
-                        custbody_ava_disable_tax_calculation: true
-                    },
-                })
-                log.debug("map updated recordId " + objMapValue.recCreatedFromType, recordId)
 
+                let intCreatedFromId = objMapValue.createdFromId
+
+                if (intCreatedFromId){
+                    var recordCreatedFromId = record.submitFields({
+                        type: objMapValue.recCreatedFromType,
+                        id: intCreatedFromId,
+                        values: {
+                            custbody_ava_disable_tax_calculation: true
+                        },
+                    })
+                    log.debug("map updated recordCreatedFromId " + objMapValue.recCreatedFromType, recordCreatedFromId)
+                }
+                
                 mapContext.write({
-                    key: objMapValue.recIFId,
+                    key: objMapValue.recId,
                     value: objMapValue
                 })
             } catch (err) {
@@ -99,64 +106,44 @@ define(['N/record', 'N/search'],
 
         const reduce = (reduceContext) => {
             try {
-                let arrItems = ['4402', '4414', '4412', '4415']
-                // log.debug('reduce : reduceContext', reduceContext);
+                log.debug('reduce : reduceContext', reduceContext);
                 let objReduceValues = JSON.parse(reduceContext.values)
                 log.debug("reduce objReduceValues", objReduceValues)
-                var intIFId = reduceContext.key;
+
+                var arrRecLines = objReduceValues.recLineUniqueKey;
+                var intRecId = reduceContext.key;
                 let objRecord = record.load({
-                    type: objReduceValues.recIFType,
-                    id: intIFId,
+                    type: objReduceValues.recType,
+                    id: intRecId,
                     isDynamic: true,
                 });
                 log.debug("reduce objRecord", objRecord)
                 if (objRecord){
-                    var numLines = objRecord.getLineCount({
-                        sublistId: 'item'
-                    });
-                    log.debug("reduce numLines", numLines)
-                    if (numLines > 0) {
-                        for (var i = 0;  i < numLines; i++) {
+
+                    objRecord.setValue({fieldId:'custbody_ava_disable_tax_calculation', value:true})
+
+                    arrRecLines.forEach(function (recLineData) {
+                        var intLineRec = objRecord.findSublistLineWithValue({
+                            sublistId:'item',
+                            fieldId:'lineuniquekey',
+                            value:recLineData
+                        })
+                        log.debug('reduce: intLineRec', intLineRec)
+                        if(intLineRec != -1){
                             objRecord.selectLine({
-                                sublistId: 'item',
-                                line: i
+                                sublistId:'item',
+                                line:intLineRec
                             });
-                            let intItem = objRecord.getSublistValue({
-                                sublistId: 'item',
-                                fieldId: 'item',
-                                line: i
-                            })
-                            let strProgram = objRecord.getSublistValue({
+                            objRecord.setCurrentSublistValue({
                                 sublistId: 'item',
                                 fieldId: 'custcol_cseg_npo_program',
-                                line: i
-                            })
-                            let strDepartment = objRecord.getSublistValue({
-                                sublistId: 'item',
-                                fieldId: 'department',
-                                line: i
-                            })
-                            log.debug("reduce intItem", intItem)
-                            log.debug("reduce strProgram", strProgram)
-                            log.debug("reduce strDepartment", strDepartment)
-                            if(arrItems.includes(intItem)){
-                                if(strProgram == 24){ // Parish Book Program
-                                    if (!strDepartment){
-                                        objRecord.setCurrentSublistValue({
-                                            sublistId: 'item',
-                                            fieldId: 'custcol_cseg_npo_program',
-                                            value: 109 // Eucharistic Consecration
-                                        });
-                                    }
-                                }
-                            }
-                            objRecord.commitLine({
-                                sublistId: 'item'
+                                value: 109 // Eucharistic Consecration
                             });
-                        }         
-                        let recordId = objRecord.save()
-                        log.debug('reduce IF recordId Updated', recordId)
-                    }
+                            objRecord.commitLine({sublistId:'item'})
+                        }
+                    });
+                    let recordId = objRecord.save()
+                    log.debug('reduce recordId Updated', recordId) 
                 }
             } catch (err) {
                 log.error('reduce error', err.message);
