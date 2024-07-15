@@ -94,7 +94,7 @@ define(['N/record', 'N/search'],
                         'AND',
                         ['custrecord_deprhistjournal', 'anyof', '@NONE@'],
                         'AND',
-                        ['custrecord_deprhistdate', 'within', '1/1/2023', '12/31/2023'],
+                        ['custrecord_deprhistdate', 'within', 'thisyear'],
                         'AND',
                         ['name', 'contains', '|'],
                         
