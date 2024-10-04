@@ -12,6 +12,7 @@ define(['N/record', 'N/search'],
             log.debug('scriptContext.type', scriptContext.type)
             try {
                 if (scriptContext.type === scriptContext.UserEventType.CREATE) {
+                    let strProgram = null
                     const objRec = scriptContext.newRecord
                     const objCurrentRecord = record.load({
                         type: objRec.type,
@@ -47,7 +48,7 @@ define(['N/record', 'N/search'],
                                         if (fieldLookUp) {
                                             let { custitem_cc_default_program, custitem_cc_default_department } = fieldLookUp;
                                     
-                                            let strProgram = custitem_cc_default_program && custitem_cc_default_program.length > 0 ? custitem_cc_default_program[0].value : null;
+                                            strProgram = custitem_cc_default_program && custitem_cc_default_program.length > 0 ? custitem_cc_default_program[0].value : null;
                                             let strDepartment = custitem_cc_default_department && custitem_cc_default_department.length > 0 ? custitem_cc_default_department[0].value : null;
                                     
                                             log.debug('afterSubmit strProgram', strProgram);
@@ -70,10 +71,11 @@ define(['N/record', 'N/search'],
                                     }
                            
                                 } else {
+                                    strProgram = 12 // Evangelization
                                     objCurrentRecord.setCurrentSublistValue({
                                         sublistId: 'inventory',
                                         fieldId: 'custcol_cseg_npo_program',
-                                        value: 12, // Evangelization
+                                        value: strProgram,
                                         line: i
                                     })
                                 }
@@ -81,6 +83,12 @@ define(['N/record', 'N/search'],
                                     sublistId: 'inventory'
                                 })
                             }
+                            log.debug('strProgram', strProgram)
+                            objCurrentRecord.setValue({
+                                fieldId: 'custbody_cseg_npo_program',
+                                value: strProgram
+                            })
+                            
                             let recordId = objCurrentRecord.save({
                                 enableSourcing: true,
                                 ignoreMandatoryFields: true

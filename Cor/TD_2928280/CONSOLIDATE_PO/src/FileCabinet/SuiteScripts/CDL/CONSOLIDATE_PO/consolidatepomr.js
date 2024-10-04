@@ -43,7 +43,7 @@ define(['N/record', 'N/redirect', 'N/search', 'N/runtime', 'N/format'],
             rate: 'custrecord_rate',
             amount: 'custrecord_amount',
             expectedreceiptdate: 'custrecord_expectedreceiptdate',
-            location: 'custrecord_location',
+            location: 'custrecord_location_item',
             department: 'custrecord_department',
             class: 'custrecord_class',
             customer: 'custrecord_customer',
@@ -266,10 +266,13 @@ define(['N/record', 'N/redirect', 'N/search', 'N/runtime', 'N/format'],
                        value: qty,
                        line: y
                    });
+                   let intAmount = qty * rate
+                   log.debug('reduce : intAmount', intAmount);
+
                    objPORecord.setCurrentSublistValue({
                        sublistId: 'item',
                        fieldId: 'amount',
-                       value: qty * rate,
+                       value: intAmount,
                        line: y
                    });
                    objPORecord.setCurrentSublistValue({
@@ -313,24 +316,30 @@ define(['N/record', 'N/redirect', 'N/search', 'N/runtime', 'N/format'],
                        arrToCloseLines.push(objData)
                    }
 
-                   objPORecord.removeLine({ sublistId: 'item', line: x, ignoreRecalc: true });
+                   objPORecord.removeLine({ sublistId: 'item', line: x, ignoreRecalc: false });
+                   log.debug('reduce : line', x);
                 }
             }
-   
+            log.debug('reduce : arrToCloseLines', arrToCloseLines);
+
             objPORecord.setValue({
                 fieldId: 'custbody_consolidated_po',
                 value: true
             });
    
-            let recId = objPORecord.save()
+            let recId = objPORecord.save({
+                enableSourcing: true,
+                ignoreMandatoryFields: true
+            })
+
             log.debug('consolidatePO recordId', recId);
 
-            if(recId){
+            if(recId && arrToCloseLines.length > 0){
                 closeReqLines(arrToCloseLines)
             }
                
             } catch (error) {
-                log.error('reduce error', error.message)
+                log.error('reduce error', error)
             }
         }
    
